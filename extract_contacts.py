@@ -1,20 +1,32 @@
 # -*- coding: utf-8 -*-
 """
-颜阿娇 - 批量提取达人联系方式 v3
+颜阿娇 - 批量提取达人联系方式 v4（修复版）
 =================================
 从采集结果Excel中读取达人列表，逐个打开详情页，
 点击"查看联系方式"，提取手机号和微信号，输出到新Excel。
 
+v4 修复内容（相对 v3）：
+1. 【核心bug】微信号提取：无分隔符兜底正则原本要求首字符必须是字母，
+   导致纯数字微信号（很常见，很多人直接用手机号当微信号）100%提取失败。
+   现已放开，允许数字开头。
+2. 【核心bug】手机号提取：原本用"排除4个以上连续相同数字"来过滤截断的系统ID，
+   但这个方法会连带误杀真实存在的、恰好含有连续重复数字的手机号
+   （如138****0000、159****1111这类很常见的号码）。
+   现改用零宽断言 (?<!\\d)...(?!\\d) 精确匹配独立完整的11位号码，
+   彻底避免误伤真实号码。
+3. 【联动bug】旧版只要任一字段有值就跳过，导致历史漏提字段无法修复。
+   现对没有可靠分类状态的历史部分结果复查一次；页面确认只有一种联系方式后永久跳过，
+   若字段存在但解析失败，则保存诊断并当天不再查询。
+
 技术路线（用户确认）：
-  - 点击"查看联系方式"后，手机号和微信号都可以直接文本复制
-  - 无需OCR，纯DOM文本提取即可
+- 点击"查看联系方式"后，手机号和微信号都可以直接文本复制
+- 无需OCR，纯DOM文本提取即可
 
 使用方式：
-  python extract_contacts.py --input 采集结果/颜阿娇_达人_健康_20260713_124840.xlsx
-  python extract_contacts.py --input 采集结果/颜阿娇_达人_健康_20260713_124840.xlsx --max 20
-  python extract_contacts.py --id 535256404  (单个测试)
+python extract_contacts.py --input 采集结果/颜阿娇_达人_健康_20260713_124840.xlsx
+python extract_contacts.py --input 采集结果/颜阿娇_达人_健康_20260713_124840.xlsx --max 20
+python extract_contacts.py --id 535256404 (单个测试)
 """
-
 import sys
 import io
 import time
@@ -55,126 +67,403 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 # ============================================================
 # 配置
 # ============================================================
-
 class Config:
     BASE_DIR = Path(__file__).parent
     USER_DATA = BASE_DIR / ".kuaishou_browser_data"
     OUTPUT_DIR = BASE_DIR / "采集结果"
+    DEBUG_DIR = BASE_DIR / "debug_screenshots"
+
     DAREN_SQUARE_URL = "https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro"
     DETAIL_URL_FMT = "https://cps.kwaixiaodian.com/zone/daren-match/daren-detail?promoterId={pid}"
 
     # 提取限制
-    PAGE_DELAY = 5          # 每人间隔（秒）
-    MAX_PER_SESSION = 500   # 每次最多提取人数（官方每日上限 500）
-    BATCH_SIZE = 10         # 每批人数（中间暂停一下）
+    MIN_PAGE_DELAY = 10
+    PAGE_DELAY = 10  # 每人间隔（秒）
+    MAX_PER_SESSION = 500  # 每次最多提取人数（官方每日上限 500）
+    BATCH_SIZE = 10  # 每批人数（中间暂停一下）
 
     # 并发/频率限制：保守策略
-    LONG_PAUSE_EVERY = 20   # 每N人后额外暂停
-    LONG_PAUSE_DURATION = 15  # 额外暂停时长（秒）
+    LONG_PAUSE_EVERY = 10  # 每N人后额外暂停
+    LONG_PAUSE_DURATION = 30  # 额外暂停时长（秒）
 
     # 自动暂停恢复：连续N个达人无联系方式 → 判断触达每日上限 → 等30分钟恢复
-    AUTO_PAUSE_CONSECUTIVE_EMPTY = 5   # 连续N个达人无联系方式触发暂停（5=较合理，避免偶发空结果误触发）
-    AUTO_PAUSE_MINUTES = 30            # 暂停分钟后自动恢复
+    AUTO_PAUSE_CONSECUTIVE_EMPTY = 5  # 连续N个达人无联系方式触发暂停（5=较合理，避免偶发空结果误触发）
+    AUTO_PAUSE_MINUTES = 30  # 暂停分钟后自动恢复
+    MAX_CONTACT_RETRIES = 1
+
+
+_MISSING_CONTACT_VALUES = {"", "none", "无", "暂无", "未获取"}
+
+def _clean_contact_value(value) -> str:
+    text = str(value).strip() if value is not None else ""
+    return "" if text.lower() in _MISSING_CONTACT_VALUES else text
+
+def _is_placeholder_contact(value) -> bool:
+    text = str(value).strip() if value is not None else ""
+    return bool(text) and text.lower() in _MISSING_CONTACT_VALUES
+
+def _contact_values_from_row(row, phone_col, wechat_col):
+    phone = _clean_contact_value(row[phone_col]) if phone_col is not None and len(row) > phone_col else ""
+    wechat = _clean_contact_value(row[wechat_col]) if wechat_col is not None and len(row) > wechat_col else ""
+    return phone, wechat
+
+def _clear_placeholder_contacts(input_excel: str):
+    wb = load_workbook(input_excel)
+    ws = wb.active
+    contact_cols = []
+    for col_idx, cell in enumerate(ws[1], 1):
+        header = str(cell.value).strip() if cell.value else ""
+        if header in ("手机号", "微信号"):
+            contact_cols.append(col_idx)
+
+    changed = 0
+    for row_idx in range(2, ws.max_row + 1):
+        for col_idx in contact_cols:
+            cell = ws.cell(row=row_idx, column=col_idx)
+            if _is_placeholder_contact(cell.value):
+                cell.value = None
+                changed += 1
+
+    if changed:
+        wb.save(input_excel)
+        log(f"   🧹 已清理 {changed} 个旧的‘无/暂无’占位值")
+    wb.close()
+    return changed
+
+def _retry_state_path(input_excel: str) -> Path:
+    input_path = Path(input_excel)
+    return input_path.with_name(f"{input_path.stem}_联系方式重试.json")
+
+def _load_retry_state(input_excel: str) -> dict:
+    state_path = _retry_state_path(input_excel)
+    if not state_path.exists():
+        return {"input": str(Path(input_excel).resolve()), "creators": {}}
+    try:
+        with open(state_path, "r", encoding="utf-8") as file:
+            state = json.load(file)
+        if not isinstance(state, dict) or not isinstance(state.get("creators"), dict):
+            raise ValueError("重试状态格式无效")
+        return state
+    except Exception as error:
+        log(f"⚠️ 重试状态读取失败，将重新建立: {error}")
+        return {"input": str(Path(input_excel).resolve()), "creators": {}}
+
+def _save_retry_state(input_excel: str, state: dict):
+    state_path = _retry_state_path(input_excel)
+    state["input"] = str(Path(input_excel).resolve())
+    state["max_retries"] = Config.MAX_CONTACT_RETRIES
+    state["updated_at"] = datetime.now().isoformat()
+    temp_path = state_path.with_suffix(state_path.suffix + ".tmp")
+    with open(temp_path, "w", encoding="utf-8") as file:
+        json.dump(state, file, ensure_ascii=False, indent=2)
+    temp_path.replace(state_path)
+
+_TERMINAL_CONTACT_STATUSES = {"完整", "仅手机号", "仅微信号"}
+_RETRYABLE_CONTACT_STATUSES = {"解析异常", "平台临时未显示", "技术失败", "采集标签与详情冲突", "未填写联系方式", "今日暂缓", "待重试"}
+
+def _is_retry_exhausted(retry_state: dict, promoter_id: str) -> bool:
+    entry = retry_state.get("creators", {}).get(str(promoter_id), {})
+    today = datetime.now().date().isoformat()
+    return (
+        entry.get("last_attempt_date") == today
+        and entry.get("status") in _RETRYABLE_CONTACT_STATUSES
+        and int(entry.get("failures", 0)) >= Config.MAX_CONTACT_RETRIES
+    )
+
+def _is_contact_complete(retry_state: dict, promoter_id: str, phone: str, wechat: str) -> bool:
+    entry = retry_state.get("creators", {}).get(str(promoter_id), {})
+    status = entry.get("status")
+    if status in _TERMINAL_CONTACT_STATUSES:
+        return True
+    if status in _RETRYABLE_CONTACT_STATUSES:
+        return False
+    if phone and wechat:
+        return True
+    return False
+
+def _record_contact_attempt(input_excel: str, retry_state: dict, promoter_id: str,
+                            existing_phone: str, existing_wechat: str, result: dict) -> dict:
+    pid = str(promoter_id).strip()
+    new_phone = _clean_contact_value(result.get("phone"))
+    new_wechat = _clean_contact_value(result.get("wechat"))
+    final_phone = existing_phone or new_phone
+    final_wechat = existing_wechat or new_wechat
+    today = datetime.now().date().isoformat()
+    outcome = result.get("query_outcome", "technical_failure")
+
+    status_by_outcome = {
+        "complete": "完整",
+        "only_phone": "仅手机号",
+        "only_wechat": "仅微信号",
+        "source_conflict": "采集标签与详情冲突",
+        "parse_failure": "解析异常",
+        "temporary_failure": "平台临时未显示",
+        "technical_failure": "技术失败",
+    }
+    status = status_by_outcome.get(outcome, "技术失败")
+    failures = 0 if status in _TERMINAL_CONTACT_STATUSES else Config.MAX_CONTACT_RETRIES
+
+    creators = retry_state.setdefault("creators", {})
+    creators[pid] = {
+        "failures": failures,
+        "status": status,
+        "query_outcome": outcome,
+        "phone": final_phone,
+        "wechat": final_wechat,
+        "last_error": result.get("error", ""),
+        "classification_reason": result.get("classification_reason", ""),
+        "diagnostic_text": result.get("diagnostic_text", ""),
+        "screenshot_path": result.get("screenshot_path", ""),
+        "response_wait_timed_out": result.get("response_wait_timed_out", False),
+        "rate_limit_warning": result.get("rate_limit_warning", ""),
+        "last_attempt_date": today,
+        "updated_at": datetime.now().isoformat(),
+    }
+    _save_retry_state(input_excel, retry_state)
+
+    result["phone"] = new_phone
+    result["wechat"] = new_wechat
+    result["retry_failures"] = failures
+    result["retry_status"] = status
+    result["final_phone"] = final_phone
+    result["final_wechat"] = final_wechat
+    return result
 
 
 # ============================================================
 # 单个达人联系方式提取
 # ============================================================
+def _contact_text_excerpt(text: str, limit: int = 800) -> str:
+    normalized = re.sub(r'\s+', ' ', text or '').strip()
+    if len(normalized) <= limit:
+        return normalized
+    positions = [normalized.find(marker) for marker in ("联系方式", "手机号", "微信号", "操作频繁", "稍后再试")]
+    positions = [position for position in positions if position >= 0]
+    start = max(0, (min(positions) if positions else 0) - 120)
+    return normalized[start:start + limit]
+
+def _read_contact_text(page, body_text: str) -> str:
+    for selector in (
+        '[role="dialog"]',
+        '.ant-modal-content',
+        '.semi-modal-content',
+        '.el-dialog',
+        '[class*="contact"][class*="modal"]',
+    ):
+        try:
+            locator = page.locator(selector)
+            if locator.count() > 0:
+                panel_text = locator.last.inner_text(timeout=2000).strip()
+                if panel_text:
+                    return panel_text
+        except Exception:
+            continue
+    return body_text
+
+def _find_contact_button(page):
+    candidates = []
+    try:
+        candidates.append(page.get_by_role("button", name="查看联系方式", exact=True))
+    except Exception:
+        pass
+    try:
+        candidates.append(page.get_by_text("查看联系方式", exact=True))
+    except Exception:
+        pass
+    candidates.append(page.locator('text=查看联系方式'))
+    for locator in candidates:
+        try:
+            if locator.count() > 0:
+                return locator.first
+        except Exception:
+            continue
+    return None
+
+def _wait_for_contact_response(page, before_text: str) -> bool:
+    try:
+        page.wait_for_function(
+            """before => {
+                const text = document.body.innerText || '';
+                const markers = ['手机号', '手机号码', '微信号', '操作频繁', '稍后再试',
+                    '系统繁忙', '操作过快', '请稍后重试', '暂无联系方式', '未填写联系方式', '安全检测', '滑动验证'];
+                return text !== before && markers.some(marker => text.includes(marker));
+            }""",
+            arg=before_text,
+            timeout=10000,
+        )
+        return True
+    except Exception:
+        return False
+
+def _save_failure_screenshot(page, promoter_id: str, outcome: str) -> str:
+    try:
+        Config.DEBUG_DIR.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_pid = re.sub(r'[^a-zA-Z0-9_-]', '_', str(promoter_id))
+        shot_path = Config.DEBUG_DIR / f"{safe_pid}_{outcome}_{timestamp}.png"
+        page.screenshot(path=str(shot_path), full_page=True)
+        return str(shot_path)
+    except Exception:
+        return ""
+
+def _detect_verification(page) -> str:
+    try:
+        text = page.locator("body").inner_text(timeout=2000)
+    except Exception:
+        return ""
+    for marker in ("滑动验证", "请完成验证", "安全检测", "人机验证", "验证码", "拖动滑块"):
+        if marker in text:
+            return marker
+    return ""
 
 def extract_one(page, promoter_id: str, nickname: str = "") -> dict:
-    """
-    从详情页提取单个达人的手机号和微信号。
-    返回 {"promoterId", "nickname", "phone", "wechat", "error"}
-    """
     result = {
         "promoterId": promoter_id,
         "nickname": nickname,
         "phone": "",
         "wechat": "",
         "error": "",
+        "query_outcome": "technical_failure",
+        "classification_reason": "",
+        "diagnostic_text": "",
+        "screenshot_path": "",
+        "response_wait_timed_out": False,
+        "rate_limit_warning": "",
     }
-
     detail_url = Config.DETAIL_URL_FMT.format(pid=promoter_id)
 
     try:
-        # 1. 导航到详情页
         page.goto(detail_url, timeout=30000, wait_until="domcontentloaded")
         time.sleep(4)
 
-        # 检查页面是否有效
         body_text = page.locator("body").inner_text(timeout=3000)
         if "未找到" in body_text or "404" in body_text:
             result["error"] = "详情页不存在"
+            result["classification_reason"] = "详情页不存在，未消耗为有效联系方式结果"
             return result
 
-        # 2. 点击"查看联系方式"
-        contact_btn = page.locator('text=查看联系方式').first
-        if contact_btn.count() > 0:
+        contact_btn = _find_contact_button(page)
+        if contact_btn is not None:
             try:
+                before_click_text = body_text
                 contact_btn.click(timeout=5000)
-                time.sleep(3)
-            except Exception as e:
-                result["error"] = f"点击查看联系方式失败: {e}"
+                response_loaded = _wait_for_contact_response(page, before_click_text)
+                result["response_wait_timed_out"] = not response_loaded
+            except Exception as error:
+                result["error"] = f"点击查看联系方式失败: {error}"
+                result["classification_reason"] = "按钮点击失败，不能判断联系方式状态"
+                result["screenshot_path"] = _save_failure_screenshot(page, promoter_id, "click_failure")
                 return result
-        else:
-            # 可能已经展开了，或者没有联系方式
-            if "手机" in body_text and "微信" in body_text:
-                pass  # 已经显示
-            else:
-                result["error"] = "无查看联系方式按钮"
-                return result
+        elif not any(marker in body_text for marker in ("手机号", "手机号码", "微信号", "暂无联系方式", "未填写联系方式")):
+            result["error"] = "无查看联系方式按钮"
+            result["classification_reason"] = "页面未出现按钮或已展开联系方式区域"
+            result["screenshot_path"] = _save_failure_screenshot(page, promoter_id, "button_missing")
+            return result
 
-        # 3. 获取最新页面文本
-        time.sleep(1)
         body_text = page.locator("body").inner_text(timeout=3000)
+        contact_text = _read_contact_text(page, body_text)
+        result["diagnostic_text"] = _contact_text_excerpt(contact_text)
 
-        # 4. 提取手机号（优先匹配"手机号+86xxx"格式，再兜底全局正则）
+        phone_patterns = [
+            r'手机号\s*[：:]?\s*(?:\+?86\s*)?(1[3-9]\d{9})(?!\d)',
+            r'手机号码\s*[：:]?\s*(?:\+?86\s*)?(1[3-9]\d{9})(?!\d)',
+            r'联系电话\s*[：:]?\s*(?:\+?86\s*)?(1[3-9]\d{9})(?!\d)',
+        ]
         phones = []
-        # 优先：匹配"手机号"后面的+86格式
-        phone_86 = re.findall(r'手机号\+?86(\d{11})', body_text)
-        if phone_86:
-            phones = phone_86
-        else:
-            # 兜底：全局11位手机号
-            phones = re.findall(r'1[3-9]\d{9}', body_text)
-        # 过滤：排除含4个以上连续相同数字（排除系统ID截断如14000011687）
-        phones = [p for p in set(phones) if not re.search(r'(\d)\1{3,}', p)]
-        # 只取真正11位的（排除更长ID的截断）
-        phones = [p for p in phones if len(p) == 11]
+        for pattern in phone_patterns:
+            phones.extend(re.findall(pattern, contact_text))
+        phones = list(dict.fromkeys(phones))
         result["phone"] = phones[0] if phones else ""
 
-        # 5. 提取微信号（多种格式）
-        # 快手页面常见格式："微信号ZJ20258686"（无分隔符）、"微信号：xxx"、"微信号 xxx"
-        wechats = []
-        for pat in [
+        wechat_patterns = [
             r'微信号\s*[：:]\s*([a-zA-Z0-9_-]{4,40})',
             r'微信\s*[：:]\s*([a-zA-Z0-9_-]{4,40})',
             r'微信号\s+([a-zA-Z0-9_-]{4,40})',
             r'微信\s+([a-zA-Z0-9_-]{4,40})',
-            # 无分隔符兜底（"微信号xxx"直接连在一起）
-            r'微信号([a-zA-Z][a-zA-Z0-9_-]{3,39})',
-            r'微信([a-zA-Z][a-zA-Z0-9_-]{3,39})',
-        ]:
-            found = re.findall(pat, body_text)
-            wechats.extend(found)
-        # 过滤常见的误匹配
-        exclude = {"该用户", "暂无", "null", "undefined", "wxid", "gh_"}
-        wechats = list(set(w for w in wechats if w not in exclude))
+            r'微信号([a-zA-Z0-9][a-zA-Z0-9_-]{3,39})',
+            r'微信([a-zA-Z0-9][a-zA-Z0-9_-]{3,39})',
+        ]
+        wechats = []
+        for pattern in wechat_patterns:
+            wechats.extend(re.findall(pattern, contact_text))
+        excluded_wechat = {"该用户", "暂无", "null", "undefined", "wxid", "gh_", "未填写", "未设置"}
+        wechats = [
+            value for value in dict.fromkeys(wechats)
+            if value.lower() not in excluded_wechat and not value.startswith("****")
+        ]
         result["wechat"] = wechats[0] if wechats else ""
 
-        if not result["phone"] and not result["wechat"]:
-            result["error"] = "未提取到手机号或微信号"
+        phone_label_present = bool(re.search(r'手机号|手机号码|联系电话', contact_text))
+        wechat_label_present = bool(re.search(r'微信号|微信号码|微信', contact_text))
+        empty_value_pattern = r'\s*[：:]?\s*(?:--+|—+|无|暂无|未填写|未设置|未提供)'
+        phone_explicitly_empty = bool(re.search(
+            rf'(?:手机号|手机号码|联系电话){empty_value_pattern}', contact_text
+        ))
+        wechat_explicitly_empty = bool(re.search(
+            rf'(?:微信号|微信号码|微信){empty_value_pattern}', contact_text
+        ))
+        temporary_markers = (
+            "操作过快", "操作频繁", "请求频繁", "访问频繁", "请稍后重试",
+            "稍后再试", "系统繁忙", "网络异常", "查询次数",
+            "次数已达上限", "今日上限", "加载失败",
+        )
+        result["rate_limit_warning"] = next(
+            (marker for marker in temporary_markers if marker in body_text), ""
+        )
+        explicit_empty_markers = (
+            "未填写联系方式", "暂无联系方式", "未设置联系方式",
+            "没有填写联系方式", "未提供联系方式",
+        )
 
-    except Exception as e:
-        result["error"] = str(e)[:100]
+        if result["phone"] and result["wechat"]:
+            result["query_outcome"] = "complete"
+            result["classification_reason"] = "手机号和微信号均已明确解析"
+        elif result["phone"]:
+            if wechat_explicitly_empty or not wechat_label_present:
+                result["query_outcome"] = "only_phone"
+                result["classification_reason"] = "页面明确未填写微信号，或未展示微信字段"
+            else:
+                result["query_outcome"] = "parse_failure"
+                result["error"] = "页面出现微信字段，但未解析到微信号"
+                result["classification_reason"] = "保留手机号；微信字段可能格式变化，需根据诊断文本修复"
+        elif result["wechat"]:
+            if phone_explicitly_empty or not phone_label_present:
+                result["query_outcome"] = "only_wechat"
+                result["classification_reason"] = "页面明确未填写手机号，或未展示手机字段"
+            else:
+                result["query_outcome"] = "parse_failure"
+                result["error"] = "页面出现手机字段，但未解析到手机号"
+                result["classification_reason"] = "保留微信号；手机字段可能格式变化，需根据诊断文本修复"
+        elif (phone_explicitly_empty and wechat_explicitly_empty) or any(marker in contact_text for marker in explicit_empty_markers):
+            result["query_outcome"] = "source_conflict"
+            result["error"] = "采集阶段标记有联系方式，但详情页未显示"
+            result["classification_reason"] = "采集标签与详情结果冲突，不能判定达人未填写"
+        elif any(marker in body_text for marker in temporary_markers):
+            result["query_outcome"] = "temporary_failure"
+            result["error"] = "平台临时未显示联系方式"
+            result["classification_reason"] = "页面出现频繁、上限、繁忙或加载失败提示"
+        elif phone_label_present or wechat_label_present:
+            result["query_outcome"] = "parse_failure"
+            result["error"] = "页面出现联系方式字段，但未解析到有效值"
+            result["classification_reason"] = "疑似页面格式变化，已保存诊断文本"
+        else:
+            result["query_outcome"] = "temporary_failure"
+            result["error"] = "联系方式区域未完整显示"
+            result["classification_reason"] = "没有明确未填写提示，不能判定达人无联系方式"
 
+    except Exception as error:
+        result["error"] = str(error)[:200]
+        result["query_outcome"] = "technical_failure"
+        result["classification_reason"] = "页面导航、读取或解析发生技术异常"
+
+    if result["query_outcome"] not in ("complete", "only_phone", "only_wechat"):
+        result["screenshot_path"] = _save_failure_screenshot(page, promoter_id, result["query_outcome"])
     return result
 
 
 # ============================================================
 # 浏览器生命周期 & 批量提取
 # ============================================================
-
 def _open_browser():
     """打开浏览器并返回 (p, ctx, page)，同时导航空到达人广场确认登录。"""
     log("🚀 启动浏览器（使用已有登录态）...")
@@ -191,7 +480,7 @@ def _open_browser():
     time.sleep(5)
 
     if "login" in page.url.lower():
-        log("⚠️  需要扫码登录快手，请在浏览器中扫码...")
+        log("⚠️ 需要扫码登录快手，请在浏览器中扫码...")
         for i in range(120):
             time.sleep(2)
             if "login" not in page.url.lower():
@@ -220,12 +509,14 @@ def _close_browser(p, ctx):
 
 
 def batch_extract(input_excel: str, max_count: int = None,
-                  start_from: int = 0, callback=None):
+                   start_from: int = 0, callback=None):
     """
     批量从Excel中读取达人列表，逐个提取联系方式。
 
     特性：
-    - 智能跳过已有联系方式的达人（断点续提）
+    - 智能跳过已完成分类的达人（断点续提）
+    - 历史部分结果仅复查一次，用于补回旧版正则漏掉的数据
+    - 页面确认仅有一种联系方式后不再查询，解析异常则保存诊断并当天跳过
     - 连续N个达人无联系方式 → 自动暂停30分钟 → 恢复（模拟人工等待触达上限恢复）
 
     参数：
@@ -270,41 +561,40 @@ def batch_extract(input_excel: str, max_count: int = None,
     if name_col is not None:
         log(f"   昵称列: {name_col} ({header[name_col]})")
 
-    # 读取全部数据行，标记哪些已有联系方式
+    # 读取全部数据行，标记哪些已有完整联系方式
     all_rows = list(ws.iter_rows(min_row=2, values_only=True))
     wb.close()
+    _clear_placeholder_contacts(input_excel)
 
     if not all_rows:
         log("❌ Excel中没有数据行")
         return []
 
-    # 过滤：跳过已有手机号或微信号的行
-    rows_to_extract = []  # (excel行号1-based, 行数据)
+    retry_state = _load_retry_state(input_excel)
+    rows_to_extract = []
     already_has = 0
+    retry_exhausted = 0
     for idx, row in enumerate(all_rows):
-        has_contact = False
-        if phone_col is not None and row[phone_col]:
-            val = str(row[phone_col]).strip()
-            if val and val not in ("None", ""):
-                has_contact = True
-        if wechat_col is not None and row[wechat_col]:
-            val = str(row[wechat_col]).strip()
-            if val and val not in ("None", ""):
-                has_contact = True
-        if has_contact:
+        promoter_id = str(row[pid_col]).strip() if row[pid_col] else ""
+        phone_val, wechat_val = _contact_values_from_row(row, phone_col, wechat_col)
+
+        if promoter_id and _is_retry_exhausted(retry_state, promoter_id):
+            retry_exhausted += 1
+        elif _is_contact_complete(retry_state, promoter_id, phone_val, wechat_val):
             already_has += 1
         else:
-            rows_to_extract.append((idx + 2, row))  # row index in Excel (1-based)
+            rows_to_extract.append((idx + 2, row, phone_val, wechat_val))
 
     total = len(all_rows)
     need_extract = len(rows_to_extract)
-
     if already_has > 0:
-        log(f"   ⏭ 已有联系方式: {already_has} 人 (自动跳过)")
+        log(f"   ⏭ 已完成或已可靠分类: {already_has} 人 (自动跳过)")
+    if retry_exhausted > 0:
+        log(f"   🛡 今日已查询但结果不可靠: {retry_exhausted} 人 (当天不再重复消耗名额)")
     log(f"   🎯 待提取: {need_extract} 人")
 
     if need_extract == 0:
-        log("✅ 所有达人联系方式已齐全，无需提取")
+        log("✅ 所有达人已完成分类，或今日已达到安全查询上限")
         return []
 
     if max_count is None:
@@ -326,18 +616,18 @@ def batch_extract(input_excel: str, max_count: int = None,
 
     results = []
     success_count = 0
-    consecutive_empty = 0          # 连续无联系方式的计数
-    pause_count = 0                # 暂停次数
+    consecutive_empty = 0  # 连续无联系方式的计数
+    pause_count = 0  # 暂停次数
 
     # 使用 while 循环支持暂停恢复
     idx = start_from
     while idx < start_from + effective_total:
-        row_excel_num, row = rows_to_extract[idx]
+        row_excel_num, row, existing_phone, existing_wechat = rows_to_extract[idx]
         promoter_id = str(row[pid_col]) if row[pid_col] else ""
         nickname = str(row[name_col]) if name_col is not None and len(row) > name_col and row[name_col] else ""
 
         if not promoter_id or promoter_id.upper() == "NONE":
-            log(f"  ⏭ [{idx+1}/{need_extract}] 跳过：无ID")
+            log(f"   ⏭ [{idx+1}/{need_extract}] 跳过：无ID")
             results.append({"promoterId": "", "nickname": nickname, "phone": "", "wechat": "", "error": "无ID"})
             idx += 1
             continue
@@ -346,13 +636,15 @@ def batch_extract(input_excel: str, max_count: int = None,
         done_so_far = idx - start_from + 1
         remaining = effective_total - done_so_far
         progress = f"[{idx+1}/{need_extract}] 已提取{success_count}人, 剩余{remaining}人"
-
         log(f"\n{'='*50}")
-        log(f"  🎯 {progress}")
-        log(f"  📋 {nickname} (ID:{promoter_id})")
+        log(f"   🎯 {progress}")
+        log(f"   📋 {nickname} (ID:{promoter_id})")
 
         # 提取
         result = extract_one(page, promoter_id, nickname)
+        result = _record_contact_attempt(
+            input_excel, retry_state, promoter_id, existing_phone, existing_wechat, result
+        )
 
         if result["phone"] or result["wechat"]:
             success_count += 1
@@ -362,9 +654,17 @@ def batch_extract(input_excel: str, max_count: int = None,
             consecutive_empty += 1
             emoji = "⚠️ "
 
-        log(f"  {emoji} 手机: {result['phone'] or '---'}  微信: {result['wechat'] or '---'}")
+        log(f"   {emoji} 手机: {result['phone'] or '---'}  微信: {result['wechat'] or '---'}")
         if result["error"]:
-            log(f"     错误: {result['error']}")
+            log(f"   错误: {result['error']}")
+        if result["retry_status"] == "解析异常":
+            log("   🧩 页面有字段但未解析成功；已保存诊断文本，当天不再查询")
+        elif result["retry_status"] == "平台临时未显示":
+            log("   🛡 平台临时未显示；当天不再查询，明日可重试")
+        elif result["retry_status"] == "技术失败":
+            log("   🛡 技术异常；当天不再自动查询，避免重复消耗名额")
+        elif result["retry_status"] == "采集标签与详情冲突":
+            log("   🛡 采集标签确认有联系方式，但详情页未显示；当天不再查询")
 
         results.append(result)
 
@@ -378,22 +678,43 @@ def batch_extract(input_excel: str, max_count: int = None,
             try:
                 _save_final_excel(results, input_excel)
             except Exception as e:
-                log(f"  ⚠️ Excel保存失败（JSON已存）: {e}")
+                log(f"   ⚠️ Excel保存失败（JSON已存）: {e}")
 
         idx += 1  # 指针前移（无论失败与否，不重试同一个达人）
 
         # ========================================
         # 检测：连续N个无联系方式 → 自动暂停恢复
         # ========================================
-        if consecutive_empty >= Config.AUTO_PAUSE_CONSECUTIVE_EMPTY:
+        if result.get("rate_limit_warning") or consecutive_empty >= Config.AUTO_PAUSE_CONSECUTIVE_EMPTY:
             pause_count += 1
             log(f"\n{'⚠️'*20}")
-            log(f"⚠️  连续 {consecutive_empty} 个达人无联系方式！")
-            log(f"⚠️  疑似触达快手每日查询上限，触发自动暂停...")
+            if result.get("rate_limit_warning"):
+                log(f"⚠️ 检测到平台提示：{result['rate_limit_warning']}")
+                log("⚠️ 当前达人结果已保存，立即暂停，不再打开下一位达人")
+            else:
+                log(f"⚠️ 连续 {consecutive_empty} 个达人未可靠显示联系方式！")
+                log("⚠️ 疑似触达查询限制，触发自动暂停...")
             log(f"{'⚠️'*20}")
 
             # 先保存已有结果到 Excel
             _save_final_excel(results, input_excel)
+
+            verification_marker = _detect_verification(page)
+            if verification_marker:
+                log(f"🧩 检测到‘{verification_marker}’，请在浏览器中人工完成验证")
+                log("   验证期间不会继续打开达人页面，避免浪费查看名额")
+                resolved = False
+                for _ in range(150):
+                    time.sleep(2)
+                    if not _detect_verification(page):
+                        resolved = True
+                        break
+                if not resolved:
+                    log("❌ 5分钟内未完成验证，本次任务安全停止")
+                    break
+                log("✅ 验证已完成，继续提取")
+                consecutive_empty = 0
+                continue
 
             # 不关浏览器！保持登录会话存活，避免恢复时需要人工扫码
             page.goto(Config.DAREN_SQUARE_URL, timeout=30000, wait_until="domcontentloaded")
@@ -420,7 +741,7 @@ def batch_extract(input_excel: str, max_count: int = None,
             time.sleep(3)
 
             if "login" in page.url.lower():
-                log("⚠️  登录态已过期，需要重新扫码（等待 30 秒自动检测）...")
+                log("⚠️ 登录态已过期，需要重新扫码（等待 30 秒自动检测）...")
                 for _ in range(15):
                     time.sleep(2)
                     if "login" not in page.url.lower():
@@ -445,12 +766,12 @@ def batch_extract(input_excel: str, max_count: int = None,
         # 频率控制（正常模式）
         if idx < start_from + effective_total:
             delay = Config.PAGE_DELAY
-            log(f"  ⏳ 等待 {delay} 秒...")
+            log(f"   ⏳ 等待 {delay} 秒...")
             time.sleep(delay)
 
             # 每N人额外暂停
             if done_so_far % Config.LONG_PAUSE_EVERY == 0:
-                log(f"  🫁 每{Config.LONG_PAUSE_EVERY}人额外暂停 {Config.LONG_PAUSE_DURATION} 秒...")
+                log(f"   🫁 每{Config.LONG_PAUSE_EVERY}人额外暂停 {Config.LONG_PAUSE_DURATION} 秒...")
                 time.sleep(Config.LONG_PAUSE_DURATION)
 
     # 关闭浏览器
@@ -458,6 +779,7 @@ def batch_extract(input_excel: str, max_count: int = None,
 
     # 保存最终结果
     output_file = _save_final_excel(results, input_excel)
+
     log(f"\n{'='*50}")
     log(f"🎉 提取完成！")
     log(f"   成功: {success_count}/{len(results)}")
@@ -471,7 +793,6 @@ def batch_extract(input_excel: str, max_count: int = None,
 # ============================================================
 # 进度保存 & 最终输出
 # ============================================================
-
 def _save_progress(results: list, input_excel: str):
     """增量保存为JSON（用于断点续传恢复）"""
     input_stem = Path(input_excel).stem
@@ -486,7 +807,12 @@ def _save_progress(results: list, input_excel: str):
 
 
 def _save_final_excel(results: list, input_excel: str):
-    """将提取的手机号和微信号回写到原始Excel（无论有无联系方式都标记）"""
+    """将提取的手机号和微信号回写到原始Excel。
+
+    【v4修复】已有的有效字段保留不覆盖；缺失的字段（哪怕只缺一个）
+    用本次提取结果补上。之前版本是"任一字段有值就整行跳过"，
+    会导致"手机号有、微信号空"的行永远补不上微信号。
+    """
     input_path = Path(input_excel)
 
     # 构建结果查找表：{promoterId: (phone, wechat)}
@@ -496,11 +822,8 @@ def _save_final_excel(results: list, input_excel: str):
         pid = str(r.get("promoterId", "")).strip()
         if not pid:
             continue
-        phone = r.get("phone") or ""
-        wechat = r.get("wechat") or ""
-        # 无联系方式的用"无"标记，过滤逻辑会识别并跳过
-        if not phone and not wechat:
-            phone = "无"
+        phone = _clean_contact_value(r.get("final_phone") or r.get("phone"))
+        wechat = _clean_contact_value(r.get("final_wechat") or r.get("wechat"))
         lookup[pid] = (phone, wechat)
 
     if not lookup:
@@ -562,7 +885,7 @@ def _save_final_excel(results: list, input_excel: str):
             cell.alignment = center_align
             cell.border = thin_border
 
-    # 逐行回填（仅更新本次新提取的，已有数据的保留不动）
+    # 逐行回填：已有的有效字段保留，缺失的字段才用新结果补上
     filled = 0
     skipped = 0
     max_row = ws.max_row
@@ -570,24 +893,39 @@ def _save_final_excel(results: list, input_excel: str):
         pid_cell = ws.cell(row=row_idx, column=pid_col)
         pid = str(pid_cell.value).strip() if pid_cell.value else ""
 
-        # 检查该行是否已有联系方式（已有则跳过，保留原数据）
-        existing_phone = ws.cell(row=row_idx, column=phone_col).value
-        existing_wechat = ws.cell(row=row_idx, column=wechat_col).value
-        has_existing = bool(
-            (existing_phone and str(existing_phone).strip() not in ("", "None"))
-            or (existing_wechat and str(existing_wechat).strip() not in ("", "None"))
-        )
-        if has_existing:
+        phone_cell = ws.cell(row=row_idx, column=phone_col)
+        wechat_cell = ws.cell(row=row_idx, column=wechat_col)
+        existing_phone = phone_cell.value
+        existing_wechat = wechat_cell.value
+        if _is_placeholder_contact(existing_phone):
+            phone_cell.value = None
+        if _is_placeholder_contact(existing_wechat):
+            wechat_cell.value = None
+        existing_phone_str = _clean_contact_value(existing_phone)
+        existing_wechat_str = _clean_contact_value(existing_wechat)
+
+        has_good_phone = bool(existing_phone_str)
+        has_good_wechat = bool(existing_wechat_str)
+
+        if has_good_phone and has_good_wechat:
+            # 两个字段都已经是有效数据，整行跳过，不覆盖
             skipped += 1
             continue
 
         # 从本次提取结果查找
         phone_val, wechat_val = lookup.get(pid, ("", ""))
-        has_real_contact = bool((phone_val and phone_val != "无") or wechat_val)
+        if not phone_val and not wechat_val:
+            # 这个pid本次没有新结果，保留原样
+            continue
+
+        final_phone = existing_phone_str if has_good_phone else phone_val
+        final_wechat = existing_wechat_str if has_good_wechat else wechat_val
+        has_real_contact = bool((final_phone and final_phone != "无") or final_wechat)
+
         if has_real_contact:
             filled += 1
 
-        for col, val in [(phone_col, phone_val), (wechat_col, wechat_val)]:
+        for col, val in [(phone_col, final_phone), (wechat_col, final_wechat)]:
             cell = ws.cell(row=row_idx, column=col, value=val)
             cell.font = body_font
             cell.border = thin_border
@@ -608,40 +946,41 @@ def _save_final_excel(results: list, input_excel: str):
     wb.close()
 
     log(f"💾 已回写到原文件: {input_path.name}")
-    log(f"   本次新增: {filled} 人")
+    log(f"   本次新增/补全: {filled} 人")
     if skipped > 0:
-        log(f"   已有跳过: {skipped} 人 (保留原数据)")
+        log(f"   已有完整数据跳过: {skipped} 人 (保留原数据)")
+
     return str(input_path)
 
 
 # ============================================================
 # 单个结果精准追加（用于实时保存，O(1)行写入）
 # ============================================================
-
 # 缓存：{input_excel: (pid_col, phone_col, wechat_col)}，避免每次检测列
 _col_cache = {}
 
 
 def _save_one_to_excel(result: dict, input_excel: str):
     """将单个提取结果精准写入Excel对应行。
-    
+
     与 _save_final_excel 的区别：
-    - _save_final_excel 遍历全部行再写 → O(n²) I/O，日志混淆
+    - _save_final_excel 遍历全部行再写 → O(n^2) I/O，日志混淆
     - _save_one_to_excel 按PID精准定位→只写一行 → O(1)，日志清晰
+
+    【v4修复】同样改为"已有的有效字段保留，缺失的字段才补"，
+    而不是"任一字段有值就整行跳过"。
     """
     pid = str(result.get("promoterId", "")).strip()
     if not pid:
         return ""
 
-    phone = result.get("phone") or ""
-    wechat = result.get("wechat") or ""
-    if not phone and not wechat:
-        phone = "无"
-
-    has_real = bool((phone and phone != "无") or wechat)
+    phone = _clean_contact_value(result.get("final_phone") or result.get("phone"))
+    wechat = _clean_contact_value(result.get("final_wechat") or result.get("wechat"))
+    has_real = bool(phone or wechat)
 
     input_path = Path(input_excel)
     key = str(input_path.resolve())
+
     wb = load_workbook(input_excel)
     ws = wb.active
 
@@ -659,6 +998,7 @@ def _save_one_to_excel(result: dict, input_excel: str):
                 phone_col = col_idx
             if h == "微信号":
                 wechat_col = col_idx
+
         if pid_col is None:
             wb.close()
             return ""
@@ -678,7 +1018,7 @@ def _save_one_to_excel(result: dict, input_excel: str):
         header_fill = PatternFill(start_color="2F5496", end_color="2F5496", fill_type="solid")
         header_font = Font(name="微软雅黑", size=11, bold=True, color="FFFFFF")
         thin_border = Border(left=Side(style="thin"), right=Side(style="thin"),
-                             top=Side(style="thin"), bottom=Side(style="thin"))
+                              top=Side(style="thin"), bottom=Side(style="thin"))
         for col, title, is_new in [(phone_col, "手机号", need_new_phone), (wechat_col, "微信号", need_new_wechat)]:
             if is_new:
                 cell = ws.cell(row=1, column=col, value=title)
@@ -693,7 +1033,7 @@ def _save_one_to_excel(result: dict, input_excel: str):
     body_font = Font(name="微软雅黑", size=10)
     center_align = Alignment(horizontal="center", vertical="center")
     thin_border = Border(left=Side(style="thin"), right=Side(style="thin"),
-                         top=Side(style="thin"), bottom=Side(style="thin"))
+                          top=Side(style="thin"), bottom=Side(style="thin"))
     green_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
     red_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
 
@@ -710,22 +1050,35 @@ def _save_one_to_excel(result: dict, input_excel: str):
         wb.close()
         return ""
 
-    # 已有联系方式的不覆盖
-    existing_phone = ws.cell(row=found_row, column=phone_col).value
-    existing_wechat = ws.cell(row=found_row, column=wechat_col).value
-    has_existing = bool(
-        (existing_phone and str(existing_phone).strip() not in ("", "None"))
-        or (existing_wechat and str(existing_wechat).strip() not in ("", "None"))
-    )
-    if has_existing:
+    # 已有的有效字段保留，缺失的字段才用新结果补上
+    phone_cell = ws.cell(row=found_row, column=phone_col)
+    wechat_cell = ws.cell(row=found_row, column=wechat_col)
+    existing_phone = phone_cell.value
+    existing_wechat = wechat_cell.value
+    if _is_placeholder_contact(existing_phone):
+        phone_cell.value = None
+    if _is_placeholder_contact(existing_wechat):
+        wechat_cell.value = None
+    existing_phone_str = _clean_contact_value(existing_phone)
+    existing_wechat_str = _clean_contact_value(existing_wechat)
+
+    has_good_phone = bool(existing_phone_str)
+    has_good_wechat = bool(existing_wechat_str)
+
+    if has_good_phone and has_good_wechat:
+        # 两个字段都已经是有效数据，跳过不覆盖
         wb.close()
         return ""
 
-    row_fill = green_fill if has_real else red_fill
+    final_phone = existing_phone_str if has_good_phone else phone
+    final_wechat = existing_wechat_str if has_good_wechat else wechat
+    has_real_final = bool((final_phone and final_phone != "无") or final_wechat)
+
+    row_fill = green_fill if has_real_final else red_fill
 
     # 写入手机号
     ph_cell = ws.cell(row=found_row, column=phone_col)
-    ph_cell.value = phone
+    ph_cell.value = final_phone
     ph_cell.font = body_font
     ph_cell.border = thin_border
     ph_cell.alignment = center_align
@@ -733,7 +1086,7 @@ def _save_one_to_excel(result: dict, input_excel: str):
 
     # 写入微信号
     wx_cell = ws.cell(row=found_row, column=wechat_col)
-    wx_cell.value = wechat
+    wx_cell.value = final_wechat
     wx_cell.font = body_font
     wx_cell.border = thin_border
     wx_cell.alignment = center_align
@@ -747,15 +1100,15 @@ def _save_one_to_excel(result: dict, input_excel: str):
     wb.save(input_excel)
     wb.close()
 
-    tag = "📱" if has_real else "⛔"
-    log(f"{tag} [{pid}] → {'phone=' + phone if has_real else '无（已标记）'}")
+    tag = "📱" if has_real_final else "⛔"
+    log(f"{tag} [{pid}] → {'phone=' + final_phone if has_real_final else '无（已标记）'}")
+
     return str(input_path)
 
 
 # ============================================================
 # 命令行入口
 # ============================================================
-
 def find_latest_excel() -> str:
     """在采集结果目录找最新的Excel"""
     excels = list(Config.OUTPUT_DIR.glob("颜阿娇_达人_*_*.xlsx"))
@@ -770,13 +1123,13 @@ def find_latest_excel() -> str:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="颜阿娇 - 批量提取达人联系方式")
     parser.add_argument("--input", type=str, default="",
-                        help="输入Excel路径（不指定则自动选最新）")
+                         help="输入Excel路径（不指定则自动选最新）")
     parser.add_argument("--max", type=int, default=None,
-                        help="最多提取人数（默认50）")
+                         help="最多提取人数（默认50）")
     parser.add_argument("--id", type=str, default="",
-                        help="测试单个达人ID")
+                         help="测试单个达人ID")
     parser.add_argument("--delay", type=int, default=Config.PAGE_DELAY,
-                        help=f"每人间隔秒数（默认{Config.PAGE_DELAY}）")
+                         help=f"每人间隔秒数（默认{Config.PAGE_DELAY}）")
     args = parser.parse_args()
 
     if args.id:
@@ -804,7 +1157,8 @@ if __name__ == "__main__":
                     break
             else:
                 log("登录超时")
-                ctx.close(); p.stop()
+                ctx.close()
+                p.stop()
                 sys.exit(1)
 
         result = extract_one(page, args.id)
@@ -814,9 +1168,9 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # 批量模式
-    Config.PAGE_DELAY = args.delay
-
+    Config.PAGE_DELAY = max(Config.MIN_PAGE_DELAY, args.delay)
     input_file = args.input or find_latest_excel()
+
     if not input_file:
         log("❌ 未找到输入Excel，请用 --input 指定")
         sys.exit(1)

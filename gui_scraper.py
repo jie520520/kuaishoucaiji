@@ -105,7 +105,7 @@ class ScraperGUI:
 
         # --- 联系方式提取状态 ---
         self.contact_input_var = tk.StringVar(value="")
-        self.contact_delay_var = tk.StringVar(value="5")
+        self.contact_delay_var = tk.StringVar(value="10")
         self.contact_max_var = tk.StringVar(value="500")
         self.contact_running = False
         self.contact_scraper_thread = None
@@ -378,7 +378,7 @@ class ScraperGUI:
         r1 = ttk.Frame(left)
         r1.pack(fill="x", pady=4)
         ttk.Label(r1, text="每人间隔:", font=F_BODY).pack(side="left")
-        ttk.Spinbox(r1, from_=3, to=30, increment=1,
+        ttk.Spinbox(r1, from_=10, to=60, increment=1,
                      textvariable=self.contact_delay_var, width=5,
                      font=F_BODY).pack(side="left", padx=4)
         ttk.Label(r1, text="秒", font=F_SMALL).pack(side="left")
@@ -402,7 +402,8 @@ class ScraperGUI:
             "1. 确保已登录快手（与达人采集共用登录态）",
             "2. 浏览器窗口会打开，请勿手动操作",
             "3. 每20人会自动暂停15秒防限流",
-            "4. 进度自动保存，中途退出可恢复",
+            "4. 异常结果当天不重复查询，次日再尝试",
+            "5. 解析异常会保存诊断文本，不会写成‘无’",
         ]
         for n in notes:
             ttk.Label(left, text=n, font=F_SMALL,
@@ -479,7 +480,8 @@ class ScraperGUI:
             return
 
         try:
-            delay = int(self.contact_delay_var.get())
+            delay = max(ec.Config.MIN_PAGE_DELAY, int(self.contact_delay_var.get()))
+            self.contact_delay_var.set(str(delay))
             max_count = int(self.contact_max_var.get())
         except ValueError:
             messagebox.showerror("错误", "请输入有效的数字!")
@@ -531,7 +533,7 @@ class ScraperGUI:
         from extract_contacts import batch_extract, extract_one, Config as EcConfig
         from playwright.sync_api import sync_playwright
 
-        EcConfig.PAGE_DELAY = int(self.contact_delay_var.get())
+        EcConfig.PAGE_DELAY = max(EcConfig.MIN_PAGE_DELAY, int(self.contact_delay_var.get()))
         EcConfig.MAX_PER_SESSION = max_count
 
         try:
@@ -550,6 +552,7 @@ class ScraperGUI:
 
             header = [str(h).strip() if h else "" for h in rows[0]]
             data_rows = rows[1:]
+            ec._clear_placeholder_contacts(input_file)
 
             # 找列
             pid_col = None
@@ -571,34 +574,32 @@ class ScraperGUI:
                 self.msg_queue.put(("contact_error", "未找到快手ID列"))
                 return
 
-            # 过滤：跳过已有联系方式的达人
-            rows_to_extract = []  # (原始索引, 行数据)
+            retry_state = ec._load_retry_state(input_file)
+            rows_to_extract = []
             already_has = 0
+            retry_exhausted = 0
             for idx, row in enumerate(data_rows):
-                has_contact = False
-                if phone_col is not None and row[phone_col]:
-                    val = str(row[phone_col]).strip()
-                    if val and val not in ("None", ""):
-                        has_contact = True
-                if wechat_col is not None and row[wechat_col]:
-                    val = str(row[wechat_col]).strip()
-                    if val and val not in ("None", ""):
-                        has_contact = True
-                if has_contact:
+                pid = str(row[pid_col]).strip() if row[pid_col] else ""
+                phone_val, wechat_val = ec._contact_values_from_row(row, phone_col, wechat_col)
+                if pid and ec._is_retry_exhausted(retry_state, pid):
+                    retry_exhausted += 1
+                elif ec._is_contact_complete(retry_state, pid, phone_val, wechat_val):
                     already_has += 1
                 else:
-                    rows_to_extract.append((idx, row))
+                    rows_to_extract.append((idx, row, phone_val, wechat_val))
 
             total = len(data_rows)
             need_extract = len(rows_to_extract)
             effective = min(max_count, need_extract)
 
             if already_has > 0:
-                self.msg_queue.put(("contact_log", f"   ⏭ 已有联系方式: {already_has} 人 (自动跳过)"))
+                self.msg_queue.put(("contact_log", f"   ⏭ 已完成或已可靠分类: {already_has} 人 (自动跳过)"))
+            if retry_exhausted > 0:
+                self.msg_queue.put(("contact_log", f"   🛡 今日已查询但结果不可靠: {retry_exhausted} 人 (当天不再重复消耗名额)"))
             self.msg_queue.put(("contact_log", f"   🎯 待提取: {need_extract} 人 | 本次: {effective} 人"))
 
             if need_extract == 0:
-                self.msg_queue.put(("contact_log", "✅ 所有达人联系方式已齐全！"))
+                self.msg_queue.put(("contact_log", "✅ 所有达人已完成分类，或今日已达到安全查询上限"))
                 self.msg_queue.put(("contact_done", [], input_file))
                 return
 
@@ -645,7 +646,7 @@ class ScraperGUI:
                     stopped_by_user = True
                     break
 
-                orig_idx, row = rows_to_extract[i]
+                orig_idx, row, existing_phone, existing_wechat = rows_to_extract[i]
                 pid = str(row[pid_col]) if row[pid_col] else ""
                 name = str(row[name_col]) if name_col is not None and len(row) > name_col and row[name_col] else ""
 
@@ -656,6 +657,9 @@ class ScraperGUI:
                 self.msg_queue.put(("contact_progress", i, effective, name, pid))
 
                 result = extract_one(page, pid, name)
+                result = ec._record_contact_attempt(
+                    input_file, retry_state, pid, existing_phone, existing_wechat, result
+                )
 
                 if result["phone"] or result["wechat"]:
                     self.contact_success += 1
@@ -664,6 +668,17 @@ class ScraperGUI:
                     consecutive_empty += 1
                 self.contact_extracted += 1
                 results.append(result)
+
+                if result["retry_status"] == "解析异常":
+                    self.msg_queue.put(("contact_log", f"   🧩 {name or pid}: 页面有字段但解析失败，已保存诊断文本；当天不再查询"))
+                elif result["retry_status"] == "平台临时未显示":
+                    self.msg_queue.put(("contact_log", f"   🛡 {name or pid}: 平台临时未显示；当天不再查询，明日可重试"))
+                elif result["retry_status"] == "技术失败":
+                    self.msg_queue.put(("contact_log", f"   🛡 {name or pid}: 技术异常；当天不再自动查询"))
+                elif result["retry_status"] == "采集标签与详情冲突":
+                    self.msg_queue.put(("contact_log", f"   🛡 {name or pid}: 采集标签确认有联系方式，但详情页未显示；当天不再查询"))
+                elif result["retry_status"] in ("仅手机号", "仅微信号"):
+                    self.msg_queue.put(("contact_log", f"   ✅ {name or pid}: {result['retry_status']}，页面未展示另一字段"))
 
                 # 保存进度：JSON 每步存（快速可靠），Excel 每5步批量写（防卡锁）
                 from extract_contacts import _save_progress, _save_final_excel
@@ -677,16 +692,44 @@ class ScraperGUI:
                 i += 1
 
                 # 检测：连续N个无联系方式 → 自动暂停恢复
-                if consecutive_empty >= EcConfig.AUTO_PAUSE_CONSECUTIVE_EMPTY:
+                if result.get("rate_limit_warning") or consecutive_empty >= EcConfig.AUTO_PAUSE_CONSECUTIVE_EMPTY:
                     pause_count += 1
                     self.msg_queue.put(("contact_log", ""))
                     self.msg_queue.put(("contact_log", "⚠️" * 20))
-                    self.msg_queue.put(("contact_log", f"⚠️  连续 {consecutive_empty} 个达人无联系方式！"))
-                    self.msg_queue.put(("contact_log", "⚠️  疑似触达快手每日查询上限，触发自动暂停..."))
+                    if result.get("rate_limit_warning"):
+                        self.msg_queue.put(("contact_log", f"⚠️  检测到平台提示：{result['rate_limit_warning']}"))
+                        self.msg_queue.put(("contact_log", "⚠️  当前达人结果已保存，立即暂停，不再打开下一位达人"))
+                    else:
+                        self.msg_queue.put(("contact_log", f"⚠️  连续 {consecutive_empty} 个达人未可靠显示联系方式！"))
+                        self.msg_queue.put(("contact_log", "⚠️  疑似触达查询限制，触发自动暂停..."))
                     self.msg_queue.put(("contact_log", "⚠️" * 20))
 
                     # 先保存已有结果
                     _save_final_excel(results, input_file)
+
+                    verification_marker = ec._detect_verification(page)
+                    if verification_marker:
+                        self.msg_queue.put(("contact_log", f"🧩 检测到‘{verification_marker}’，请在浏览器中人工完成验证"))
+                        self.msg_queue.put(("contact_log", "   验证期间不会继续打开达人页面，避免浪费查看名额"))
+                        self.lbl_contact_progress.config(text="等待人工完成安全验证...")
+                        resolved = False
+                        for _ in range(150):
+                            if not self.contact_running:
+                                stopped_by_user = True
+                                break
+                            time.sleep(2)
+                            if not ec._detect_verification(page):
+                                resolved = True
+                                break
+                        if stopped_by_user:
+                            break
+                        if not resolved:
+                            self.msg_queue.put(("contact_log", "❌ 5分钟内未完成验证，本次任务安全停止"))
+                            stopped_by_user = True
+                            break
+                        self.msg_queue.put(("contact_log", "✅ 验证已完成，继续提取"))
+                        consecutive_empty = 0
+                        continue
 
                     # 不关浏览器！保持登录会话存活，避免恢复时需要人工扫码
                     page.goto(EcConfig.DAREN_SQUARE_URL, timeout=30000, wait_until="domcontentloaded")
