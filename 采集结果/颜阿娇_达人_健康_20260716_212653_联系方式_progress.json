@@ -1,0 +1,42 @@
+{
+  "input": "C:/Users/Administrator/Desktop/颜阿娇/快手达人采集工具/采集结果/颜阿娇_达人_健康_20260716_212653.xlsx",
+  "extracted": 5,
+  "timestamp": "2026-07-16T21:31:31.705035",
+  "results": [
+    {
+      "promoterId": "1560222063",
+      "nickname": "允姐做精品",
+      "phone": "",
+      "wechat": "",
+      "error": "未提取到手机号或微信号"
+    },
+    {
+      "promoterId": "3850299788",
+      "nickname": "美恩元养胃品牌店",
+      "phone": "",
+      "wechat": "",
+      "error": "未提取到手机号或微信号"
+    },
+    {
+      "promoterId": "4500790594",
+      "nickname": "🔥百年通络世家",
+      "phone": "",
+      "wechat": "",
+      "error": "未提取到手机号或微信号"
+    },
+    {
+      "promoterId": "2924411946",
+      "nickname": "百年传承养胃世家",
+      "phone": "",
+      "wechat": "",
+      "error": "未提取到手机号或微信号"
+    },
+    {
+      "promoterId": "4567419172",
+      "nickname": "🔥南京同仁堂益生菌店",
+      "phone": "",
+      "wechat": "",
+      "error": "未提取到手机号或微信号"
+    }
+  ]
+}
