@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\颜阿娇\快手达人采集工具\gui_scraper.py", line 1199, in _run_contact_extract
+    _save_final_excel(results, input_file)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\颜阿娇\快手达人采集工具\extract_contacts.py", line 607, in _save_final_excel
+    wb.save(input_excel)
+    ~~~~~~~^^^^^^^^^^^^^
+  File "C:\Python314\Lib\site-packages\openpyxl\workbook\workbook.py", line 386, in save
+    save_workbook(self, filename)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\site-packages\openpyxl\writer\excel.py", line 291, in save_workbook
+    archive = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
+  File "C:\Python314\Lib\zipfile\__init__.py", line 1462, in __init__
+    self.fp = io.open(file, filemode)
+              ~~~~~~~^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:/Users/Administrator/Desktop/颜阿娇/快手达人采集工具/采集结果_已填充/通用_仅销售额_达人_生活_20260815_133711.xlsx'

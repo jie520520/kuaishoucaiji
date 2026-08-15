@@ -1,0 +1,55 @@
+﻿🚀 启动浏览器（复用登录态）...
+📡 导航至达人广场...
+📄 保存页面全文...
+  💾 已保存: filters_page_dump.txt (13 字符)
+🔍 分析筛选维度结构...
+  💾 已保存: filters_dims.txt (658 字符)
+🖱️ 逐个展开筛选维度...
+  💾 已保存: filters_options.txt (0 字符)
+🎯 手动点击粉丝年龄选项，验证请求参数...
+  ❌ 找不到: 31~40岁
+  ❌ 找不到: 31-40岁
+  ❌ 找不到: 41~50岁
+  ❌ 找不到: 41-50岁
+  ❌ 找不到: 50岁以上
+  ❌ 找不到: 女性为主
+  ❌ 找不到: 女多男少
+📦 未拦截到 promoter/list 请求（可能需要点击选项才触发）
+🏁 调试完成，结果在 debug/ 目录。按任意键关闭浏览器...
+C:\Python314\python.exe : node:events:487
+所在位置 行:1 字符: 164
++ ... ing]::UTF8; C:\Python314\python.exe "c:\Users\Administrator\Desktop\颜 ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (node:events:487:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at PipeTransport.send (C:\Python314\Lib\site-packages\playwright\driver\package\lib\coreBundle.js:34569:25)
+    at dispatcherConnection.onmessage (C:\Python314\Lib\site-packages\playwright\driver\package\lib\coreBundle.js:69266
+:59)
+    at DispatcherConnection.sendEvent (C:\Python314\Lib\site-packages\playwright\driver\package\lib\coreBundle.js:18641
+:14)
+    at _BrowserContextDispatcher._dispatchEvent (C:\Python314\Lib\site-packages\playwright\driver\package\lib\coreBundl
+e.js:18565:25)
+    at CRBrowserContext.<anonymous> (C:\Python314\Lib\site-packages\playwright\driver\package\lib\coreBundle.js:53919:1
+6)
+    at CRBrowserContext.emit (node:events:509:28)
+Emitted 'error' event on Socket instance at:
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at runNextTicks (node:internal/process/task_queues:69:3)
+    at process.processImmediate (node:internal/timers:472:9) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+
+Node.js v24.18.1
