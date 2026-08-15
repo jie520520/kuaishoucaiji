@@ -1,0 +1,17 @@
+=== 启动登录态探针 ===
+[COOKIE] 快手相关 cookie 数量: 10
+  - did @ .kwaixiaodian.com
+  - bUserId @ id.kwaixiaodian.com
+  - userId @ id.kwaixiaodian.com
+  - sid @ .kwaixiaodian.com
+  - kwpsecproductname @ .kwaixiaodian.com
+  - wid @ .kwaixiaodian.com
+  - passToken @ id.kwaixiaodian.com
+  - kwfv1 @ .kwaixiaodian.com
+  - kwssectoken @ .kwaixiaodian.com
+  - kwscode @ .kwaixiaodian.com
+→ 打开: https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro
+[URL] 当前URL: https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro
+[截图] 已保存: c:\Users\Administrator\Desktop\颜阿娇\快手达人采集工具\debug\probe_login_shot.png
+[文本] 已保存页面正文前3000字到 probe_login_body.txt
+=== 探针完成，浏览器保持打开15秒供查看 ===

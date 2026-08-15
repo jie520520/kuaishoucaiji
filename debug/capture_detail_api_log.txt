@@ -1,0 +1,9 @@
+20:28:39 GOTO https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro/daren-detail?promoterId=862635530
+20:28:39 *** MATCH https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro/daren-detail?promoterId=862635530 len=7056
+20:28:40 *** MATCH https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list len=41689
+20:28:40 *** MATCH https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list len=41689
+20:28:41 *** MATCH https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list len=85863
+20:28:41 *** MATCH https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list len=85863
+20:28:55 URL=https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro/daren-detail?promoterId=862635530 TITLE=分销商家
+20:28:55 CAPTURED 36 responses
+20:28:55 HITS 0

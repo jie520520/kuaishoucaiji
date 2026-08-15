@@ -1,0 +1,96 @@
+{
+  "粉丝年龄": {
+    "18岁以下": [
+      1
+    ],
+    "18-23岁": [
+      2
+    ],
+    "24-30岁": [
+      3
+    ],
+    "31-40岁": [
+      4
+    ],
+    "41-50岁": [
+      5
+    ],
+    "50岁以上": [
+      6
+    ]
+  },
+  "粉丝性别": {},
+  "粉丝城市划分": {
+    "一线城市": {
+      "__full_body__": {
+        "orderField": 0,
+        "orderType": 1,
+        "limit": 20,
+        "offset": 0,
+        "fansAddressFeature": [
+          1
+        ],
+        "hotSaleChannelIdList": [],
+        "hotSaleSubChannelId": [],
+        "type": 0
+      }
+    },
+    "二线城市": {
+      "__full_body__": {
+        "orderField": 0,
+        "orderType": 1,
+        "limit": 20,
+        "offset": 0,
+        "fansAddressFeature": [
+          2
+        ],
+        "hotSaleChannelIdList": [],
+        "hotSaleSubChannelId": [],
+        "type": 0
+      }
+    },
+    "三线城市": {
+      "__full_body__": {
+        "orderField": 0,
+        "orderType": 1,
+        "limit": 20,
+        "offset": 0,
+        "fansAddressFeature": [
+          3
+        ],
+        "hotSaleChannelIdList": [],
+        "hotSaleSubChannelId": [],
+        "type": 0
+      }
+    }
+  },
+  "达人性别": {},
+  "达人地域": {
+    "北京": {
+      "__full_body__": {
+        "orderField": 0,
+        "orderType": 1,
+        "limit": 20,
+        "offset": 0,
+        "hotSaleChannelIdList": [],
+        "hotSaleSubChannelId": [],
+        "promoterProvinceCode": "110000",
+        "promoterCountryCode": "86",
+        "type": 0
+      }
+    },
+    "上海": {
+      "__full_body__": {
+        "orderField": 0,
+        "orderType": 1,
+        "limit": 20,
+        "offset": 0,
+        "hotSaleChannelIdList": [],
+        "hotSaleSubChannelId": [],
+        "promoterProvinceCode": "310000",
+        "promoterCountryCode": "86",
+        "type": 0
+      }
+    }
+  }
+}

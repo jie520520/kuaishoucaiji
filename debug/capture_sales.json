@@ -1,0 +1,275 @@
+{
+  "list_result": 1,
+  "list_first_item": {
+    "promoterCountryCode": 0,
+    "minCommissionRate": 10,
+    "promoteLiveCount": 0,
+    "headUrl": "https://p1-ec.ecukwai.com/uhead/AB/2026/05/06/10/BMjAyNjA1MDYxMDMyNDlfODYyNjM1NTMwXzFfaGQyMzNfMzU3_s.jpg",
+    "videoGpm": 0,
+    "promoterProvince": "",
+    "promoterInviteFee": 0,
+    "tag": [],
+    "addCollect": 0,
+    "fansAgeFeature": "",
+    "fansNum": 15607,
+    "promoteSaleVolume": 0,
+    "level": "L1",
+    "promoteAvgPrice": 4008,
+    "topItemList": [
+      {
+        "itemName": "【普通食品】周年特惠雪莲鸡内金佛手丸高含量好吸收一发二",
+        "itemImageUrl": "https://p1-ec.ecukwai.com/bs2/image-kwaishop-product/ITEM_IMAGE-385503289-6559a2f82af1417e8fb7963c4afe41f0.jpg"
+      },
+      {
+        "itemName": "【周年特惠】雪莲谓宝丸高含量好吸收拍一发二",
+        "itemImageUrl": "https://p1-ec.ecukwai.com/bs2/image-kwaishop-product/ITEM_IMAGE-1855395159-2f9a624794924029b1df26513881b040.jpg"
+      },
+      {
+        "itemName": "【周年特惠】雪莲谓宝丸高含量好吸收拍一发二",
+        "itemImageUrl": "https://p1-ec.ecukwai.com/bs2/image-kwaishop-product/ITEM_IMAGE-1513556862-f47707799a4640449816bb343cfc2c36.jpg"
+      },
+      {
+        "itemName": "【周年特惠】雪莲谓宝丸高含量好吸收拍一发二",
+        "itemImageUrl": "https://p1-ec.ecukwai.com/bs2/image-kwaishop-product/ITEM_IMAGE-1513556862-eb62d06856c3493eb27f02423e6bef21.jpg"
+      },
+      {
+        "itemName": "【周年特惠】雪莲谓宝丸高含量好吸收拍一发二",
+        "itemImageUrl": "https://p1-ec.ecukwai.com/bs2/image-kwaishop-product/ITEM_IMAGE-1855395159-f18e3829148d48c9946533dcb98d8c88.jpg"
+      }
+    ],
+    "isActivePromoter": false,
+    "promoterId": 862635530,
+    "tags": [],
+    "viewInfo": {
+      "PromoterLiveAvgVisitorNum30d": "2653",
+      "PromoterLiveAvgVisitorNum30dFormatNum": "2653",
+      "relationLiveCnt7d": "0",
+      "PromoterLiveAvgGMV30dFormatUnit": "",
+      "videoGpmRange": "0-10",
+      "videoGpm": "0",
+      "relationVideoCnt30d": "0",
+      "PromoterFansCount": "1.5万",
+      "liveAvgGmvRange": "1000-2500",
+      "PromoterSingleVideoAvgWatchCnt": "0",
+      "distPayOrderAmt30d": "0",
+      "onshelfItemNum7d": "0",
+      "relationLiveCnt30d": "0",
+      "PromoterVideoGpm": "0",
+      "onshelfItemNum30d": "0",
+      "relationVideoCnt7d": "0",
+      "PromoterSingleVideoAvgGmv": "0",
+      "videoItemAvgPrice": "0",
+      "detailPageUrl": "https://cps.kwaixiaodian.com/zone/daren-match/daren-detail?promoterId=862635530",
+      "PromoterFansCountFormatUnit": "万",
+      "PromoterLiveAvgVisitorNum30dFormatUnit": "",
+      "videoAvgGmvRange": "0",
+      "inviteUrl": "drawer://open?name=kwaishop-cps-invite-daren-pc&width=900&title=带货邀约&params=%7B%22promoterId%22%3A862635530%7D",
+      "PromoterItemAvgPrice30d": "40",
+      "fansNum": "1.5万",
+      "promoteAvgPrice": "40",
+      "PromoterFansCountFormatNum": "1.5",
+      "liveAvgGmv": "1196.9",
+      "videoAvgGmv": "0",
+      "liveGpmRange": "10-50",
+      "videoAvgWatchCnt": "0",
+      "hotSaleChannel": "营养健康",
+      "liveAvgGmvSquare": "",
+      "videoAvgGmvSquare": "",
+      "actionBtnJumpUrl": "https://app.kwaixiaodian.com/web/kwaishop-cps-merchant-home-app/daren-detail?layoutType=4&promoterId=862635530",
+      "PromoterLiveAvgGMV30d": "1196.9",
+      "PromoterLiveAvgGMV30dFormatNum": "1196.9",
+      "liveAvgVisitorNum": "2653",
+      "PromoterVideoItemAvgPrice": "0",
+      "distPayOrderAmt7d": "0"
+    },
+    "promoteExpTime": 0,
+    "videoImgUrl": "https://p1-ec.ecukwai.com/mediacloud/merchant_record/record_video/1f72e9457e75f603-d81d48114b602d7c2dc929a47409fa0f-first_frame.jpg",
+    "showContact": 0,
+    "promoteItemCount": 0,
+    "promoterCountry": "",
+    "gender": "M",
+    "recoReason": "",
+    "fansGenderFeature": 0,
+    "promoterTipsExtInfo": {
+      "recoReasonInfo": [
+        {
+          "recoReason": "带货类目相同",
+          "imgUrl": "https://p1-ec.ecukwai.com/kos/nlav12333/cps-assets/SameSellerCategory.d3d1e0ff2e1c8d52.png",
+          "linkUrl": ""
+        },
+        {
+          "recoReason": "同类目商家青睐",
+          "imgUrl": "https://p1-ec.ecukwai.com/kos/nlav12333/cps-assets/SameSeller.62fa9eb674b89621.png",
+          "linkUrl": ""
+        },
+        {
+          "recoReason": "近期销售额飙升",
+          "imgUrl": "https://p4-ec.ecukwai.com/kos/nlav12333/cps-assets/SellMoney.6c86c8882436ce35.png",
+          "linkUrl": ""
+        }
+      ],
+      "hotSaleChannelHighlight": "营养健康",
+      "topSellerTips": {
+        "京膳安今羽铭专卖店": "同类目商家",
+        "北同润源今羽铭专卖店": "同类目商家",
+        "佰硕世家贝睿特专卖店": "同类目商家"
+      }
+    },
+    "promoteStartTime": 0,
+    "promoteAvgCustomerPrice": 0,
+    "isAllowedInvite": true,
+    "hisSaleChannel": [],
+    "videoItemAvgPrice": 0,
+    "categoryLevel1Rank": "",
+    "topSellerList": [
+      "佰硕世家贝睿特专卖店",
+      "京膳安今羽铭专卖店",
+      "北同润源今羽铭专卖店"
+    ],
+    "singleVideoAvgGmvIncRate": "136%",
+    "nickname": "🔥百年传承养胃世家",
+    "liveAvgGmvIncRate": "",
+    "hotSaleBrand": "",
+    "existEffectInvestment": false,
+    "addCompare": 0,
+    "singleVideoAvgGmvSquare": "0",
+    "promoterProvinceCode": 0,
+    "videoPromoteAvgPrice": 0,
+    "liveGpm": 1905,
+    "singleVideoAvgWatchCnt": 0,
+    "promoterCityCode": 0,
+    "singleVideoAvgGmv": 0,
+    "recoInfo": "",
+    "showCard": true,
+    "liveAvgGMV": 119692,
+    "fansAddressFeature": "",
+    "liveAvgGmv": 119692,
+    "videoAvgGmv": 0,
+    "liveAvgWatchUserCntIncRate": "",
+    "singleVideoPlayCntIncRate": "",
+    "videoAvgWatchCnt": 0,
+    "hotSaleChannel": [
+      "营养健康"
+    ],
+    "videoGmv": 0,
+    "liveAvgGmvSquare": "1000-2500",
+    "hasInvited": false,
+    "liveAvgVisitorNum": 2653,
+    "promoterCity": ""
+  },
+  "info_result": 1,
+  "info_data": {
+    "firstLookContact": 2,
+    "lookNumber": 0,
+    "promoterTagList": [
+      1
+    ],
+    "inviteCommissionRate": 10,
+    "isAllowedInvite": 1,
+    "alreadyLookContact": 2,
+    "promoterInviteFee": 0,
+    "categoryLevel1Rank": "",
+    "leafCateHighRefund": "",
+    "addCollect": 0,
+    "existEffectInvestment": false,
+    "promoteBaseInfo": {
+      "liveStreamCount": 14,
+      "liveStreamVisitorCount": 128081,
+      "promoteLiveCount": 0,
+      "videoGPM": "0-10",
+      "liveExperienceMSGap": 0,
+      "totalSaleSquare": "10-20万",
+      "liveStreamGMVSquare": "2500-5000",
+      "promoteStartTime": 0,
+      "liveStreamGMV": "0-5000",
+      "videoSalesSquare": "0",
+      "avgLiveVisitorCount": 0,
+      "videoSales": "0",
+      "liveStreamGPM": "10-50",
+      "promoteAvgCustomerPrice": 0,
+      "fansNum": 15607,
+      "promoteSaleVolume": 0,
+      "promoteAvgPrice": 0,
+      "avgLiveVisitorGmv": 0,
+      "videoNum": 0,
+      "avgVideoSalesSquare": "0",
+      "promoterId": 0,
+      "coopStoresNum": 4,
+      "promotedProductsNum": 8,
+      "avgVideoViewers": 0,
+      "totalSale": "10-20万",
+      "avgVideoSales": "0",
+      "videoViews": 0
+    },
+    "addressInfo": {
+      "countryCode": 0,
+      "country": "郑州市",
+      "provinceCode": 0,
+      "province": "河南省",
+      "cityCode": 0,
+      "city": "郑州市"
+    },
+    "userSex": "M",
+    "hotSaleBrandInfo": [
+      {
+        "hotSaleBrandTitle": "京膳安",
+        "hotSaleBrandNo": 1,
+        "avgPrice": "40",
+        "hotSaleBrandId": 2824315,
+        "avgGmvSquare": "5-7.5万",
+        "avgGmv": "5-7.5万",
+        "promoterId": 862635530
+      },
+      {
+        "hotSaleBrandTitle": "北同润源",
+        "hotSaleBrandNo": 2,
+        "avgPrice": "39",
+        "hotSaleBrandId": 2838677,
+        "avgGmvSquare": "5-7.5万",
+        "avgGmv": "5-7.5万",
+        "promoterId": 862635530
+      },
+      {
+        "hotSaleBrandTitle": "佰硕世家",
+        "hotSaleBrandNo": 3,
+        "avgPrice": "40",
+        "hotSaleBrandId": 2695008,
+        "avgGmvSquare": "2.5-5万",
+        "avgGmv": "2.5-5万",
+        "promoterId": 862635530
+      }
+    ],
+    "level": "L1",
+    "updateTime": "2026-08-13 13:53:20",
+    "fanNum": 15607,
+    "isActivePromoter": 0,
+    "inviteChannelInfo": [
+      {
+        "channelId": 99,
+        "channelName": "全类目"
+      }
+    ],
+    "promoterId": 862635530,
+    "showContactReason": "达人设置不展示联系方式",
+    "tags": [],
+    "hotSaleChannelInfo": [
+      {
+        "hotSaleChannelName": "营养健康",
+        "hotSaleChannelRate": 10000,
+        "avgPrice": "40",
+        "hotSaleChannelNo": 0,
+        "avgGmvSquare": "10-20万",
+        "avgGmv": "10-20万",
+        "intervalCommissionRate": "10%-10%",
+        "hotSaleChannelId": 114,
+        "promoterId": 862635530
+      }
+    ],
+    "leafCateTop100": [],
+    "phone": "",
+    "promoterNickName": "🔥百年传承养胃世家",
+    "weChat": "",
+    "showContact": 2,
+    "promoterHeadImgUrl": "https://p4-ec.ecukwai.com/uhead/AB/2026/05/06/10/BMjAyNjA1MDYxMDMyNDlfODYyNjM1NTMwXzFfaGQyMzNfMzU3_s.jpg"
+  }
+}

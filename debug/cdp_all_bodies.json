@@ -1,0 +1,664 @@
+[
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "fansAgeFeature": [
+   1
+  ],
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "fansAgeFeature": [
+   2
+  ],
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "fansAgeFeature": [
+   3
+  ],
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "fansAgeFeature": [
+   4
+  ],
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "fansAgeFeature": [
+   5
+  ],
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "fansAgeFeature": [
+   6
+  ],
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "fansAddressFeature": [
+   1
+  ],
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "fansAddressFeature": [
+   2
+  ],
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "fansAddressFeature": [
+   3
+  ],
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "promoterProvinceCode": "110000",
+  "promoterCountryCode": "86",
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "hotSaleChannelIdList": [],
+  "hotSaleSubChannelId": [],
+  "promoterProvinceCode": "310000",
+  "promoterCountryCode": "86",
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 10,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ },
+ {
+  "orderField": 0,
+  "orderType": 1,
+  "limit": 20,
+  "offset": 0,
+  "type": 0
+ }
+]

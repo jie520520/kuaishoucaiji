@@ -1,0 +1,5 @@
+19:39:33 OPEN https://cps.kwaixiaodian.com/zone/daren-match/daren-detail?promoterId=733622991
+19:39:33 REQ GET https://cps.kwaixiaodian.com/zone/daren-match/daren-detail?promoterId=733622991
+19:39:40 TITLE 分销商家
+19:39:44 REQ GET https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/info?promoterId=733622991&type=1
+19:39:44 REQ GET https://login.kwaixiaodian.com/?biz=&redirect_url=https%3A%2F%2Fcps.kwaixiaodian.com%2Fzone%2Fdaren-match%2Fdaren-detail%3FpromoterId%3D733622991

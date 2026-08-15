@@ -1,0 +1,34 @@
+🚀 启动浏览器（复用登录态）...
+📡 导航至达人广场...
+
+===== 维度: 达人性别 =====
+  ⚠️ 展开维度[达人性别]失败: Locator.scroll_into_view_if_needed: Timeout 4000ms exceeded.
+Call log:
+  - waiting for get_by_text("达人性别", exact=True).first
+
+
+===== 维度: 粉丝年龄 =====
+  ⚠️ 展开维度[粉丝年龄]失败: Locator.scroll_into_view_if_needed: Timeout 4000ms exceeded.
+Call log:
+  - waiting for get_by_text("粉丝年龄", exact=True).first
+
+
+===== 维度: 粉丝性别 =====
+  ⚠️ 展开维度[粉丝性别]失败: Locator.scroll_into_view_if_needed: Timeout 4000ms exceeded.
+Call log:
+  - waiting for get_by_text("粉丝性别", exact=True).first
+
+
+===== 维度: 粉丝城市划分 =====
+  ⚠️ 展开维度[粉丝城市划分]失败: Locator.scroll_into_view_if_needed: Timeout 4000ms exceeded.
+Call log:
+  - waiting for get_by_text("粉丝城市划分", exact=True).first
+
+
+===== 维度: 达人地域 =====
+  ⚠️ 展开维度[达人地域]失败: Locator.scroll_into_view_if_needed: Timeout 4000ms exceeded.
+Call log:
+  - waiting for get_by_text("达人地域", exact=True).first
+
+  💾 已保存: filter_params_dims.txt
+  💾 已保存: filter_params_requests.txt

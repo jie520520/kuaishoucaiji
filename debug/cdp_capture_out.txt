@@ -1,0 +1,13 @@
+🔌 连接用户 Chrome (CDP 9222)...
+  上下文页面: ['chrome-error://chromewebdata/', 'chrome-error://chromewebdata/']
+  未找到达人广场页面，新开标签页...
+  使用页面: https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro
+
+📊 ===== 1. 粉丝年龄 =====
+  ✗ 点击「粉丝年龄」失败: TimeoutError
+  ✗ 点击「18岁以下」失败: TimeoutError
+  ❌ 18岁以下 点击失败
+  ✗ 点击「粉丝年龄」失败: TimeoutError
+  ✗ 点击「18-23岁」失败: TimeoutError
+  ❌ 18-23岁 点击失败
+  ✗ 点击「粉丝年龄」失败: TimeoutError

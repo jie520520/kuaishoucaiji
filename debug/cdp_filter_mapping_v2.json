@@ -1,0 +1,51 @@
+{
+  "粉丝性别": {
+    "男粉丝多": {
+      "fansGenderFeature": 1
+    },
+    "女粉丝多": {
+      "fansGenderFeature": 2
+    }
+  },
+  "达人性别": {
+    "男性女性": {
+      "gender": "F"
+    },
+    "男性": {
+      "gender": "M"
+    },
+    "女性": {
+      "gender": "F"
+    }
+  },
+  "粉丝城市划分": {
+    "一线城市": {
+      "fansAddressFeature": [
+        1
+      ]
+    },
+    "二线城市": {
+      "fansAddressFeature": [
+        2
+      ]
+    },
+    "三线城市": {
+      "fansAddressFeature": [
+        3
+      ]
+    },
+    "四线城市": {
+      "fansAddressFeature": [
+        4
+      ]
+    },
+    "五线城市及以下": {
+      "fansAddressFeature": [
+        5
+      ]
+    }
+  },
+  "有联系方式": {
+    "hasContact": 1
+  }
+}

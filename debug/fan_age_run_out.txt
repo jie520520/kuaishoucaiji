@@ -1,0 +1,44 @@
+﻿🚀 启动浏览器（复用登录态，无需扫码）...
+📡 导航至达人广场...
+  📡 相关请求: POST https://log-sdk.ksapisrv.com/rest/wd/common/log/collect/radar?v=3.10.28&kpn=ESHOP_WEB
+  📡 相关请求: POST https://log-sdk.ksapisrv.com/rest/wd/common/log/collect/misc2?v=3.10.28&kpn=ESHOP_WEB
+  📡 相关请求: GET https://cps.kwaixiaodian.com/gateway/pc/merchant/message/center/b/common/touch/agreement
+  📡 相关请求: GET https://cps.kwaixiaodian.com/gateway/distribute/promoter/square/advice/query?scene=darenSquare
+  📡 相关请求: GET https://cps.kwaixiaodian.com/gateway/distribute/platform/seller/promoter/content/tag
+  📡 相关请求: POST https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list
+  📡 相关请求: POST https://cps.kwaixiaodian.com/gateway/distribute/pc/guide/general/query
+  📡 相关请求: POST https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list
+  📡 相关请求: POST https://cps.kwaixiaodian.com/gateway/pc/merchant/message/b/questionnaire/query
+  📡 相关请求: POST https://log-sdk.ksapisrv.com/rest/wd/common/log/collect/misc2?v=3.10.28&kpn=ESHOP_WEB
+  📡 相关请求: GET https://cps.kwaixiaodian.com/gateway/distribute/promoter/square/advice/query?scene=darenSquare
+  📡 相关请求: POST https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list
+  📡 相关请求: POST https://cps.kwaixiaodian.com/gateway/distribute/pc/guide/general/query
+  📡 相关请求: POST https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list
+  📡 相关请求: GET https://cps.kwaixiaodian.com/gateway/distribute/platform/public/message/list?roleType=2&messageType=0&readStatus=0&offset=0&limit=10
+  📡 相关请求: GET https://cps.kwaixiaodian.com/gateway/pc/merchant/message/center/b/common/garyscale?scenesType=[1]
+  📡 相关请求: GET https://cps.kwaixiaodian.com/gateway/pc/merchant/message/center/b/message/unread/info?appKey=HrE500sg_1k
+  📡 相关请求: GET https://cps.kwaixiaodian.com/gateway/distribute/pc/seller/message/bubble/check
+  📡 相关请求: GET https://id.kwaixiaodian.com/pass/kuaishou/login/passToken?callback=https%3A%2F%2Fcps.kwaixiaodian.com%2Frest%2Finfra%2Fsts%3FfollowUrl%3Dhttps%253A%25
+  📡 相关请求: GET https://id.kwaixiaodian.com/pass/kshop/web/login/passToken?callback=https%3A%2F%2Fcps.kwaixiaodian.com%2Frest%2Finfra%2Fsts%3FfollowUrl%3Dhttps%253A%2
+  📡 相关请求: GET https://cps.kwaixiaodian.com/gateway/distribute/platform/public/message/list?roleType=1&messageType=0&readStatus=0&offset=0&limit=10
+  💾 已保存: fan_age_page_before.txt (3426 字符)
+🔍 查找并点击「粉丝年龄」维度...
+✅ 已点击「粉丝年龄」
+  💾 已保存: fan_age_page_after.txt (3470 字符)
+  💾 已保存: fan_age_diff_added.txt (59 字符)
+  🔎 点击后新增文本行: 8 行
+    + 1
+    + 2
+    + 18岁以下
+    + 18-23岁
+    + 24-30岁
+    + 31-40岁
+    + 41-50岁
+    + 50岁以上
+  📡 相关请求: POST https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list
+  💾 已保存: fan_age_roles.txt (1257 字符)
+  💾 已保存: fan_age_frames.txt (85 字符)
+🎯 尝试自动点击年龄选项...
+  ⚠️ 自动点不中浮层选项
+  💾 已保存: fan_age_all_requests.txt (32955 字符)
+🏁 调试完成，结果在 debug/fan_age_*.txt。按任意键关闭浏览器...

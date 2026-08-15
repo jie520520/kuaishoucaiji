@@ -1,0 +1,38 @@
+{
+  "name": "通用_仅销售额",
+  "assoc_field": "产品关联",
+  "audience_label": "目标受众",
+  "recommended_tags": [],
+  "tag_fit_score": {},
+  "channel_fit": {},
+  "channel_map": {},
+  "kw_tier1": [],
+  "kw_tier2": [],
+  "kw_tier3": [],
+  "tier_scores": {
+    "1": [
+      15,
+      45
+    ],
+    "2": [
+      10,
+      20
+    ],
+    "3": [
+      5,
+      10
+    ]
+  },
+  "female_nick_chars": [],
+  "male_nick_chars": [],
+  "target_gender": "无",
+  "min_dist_sales_30d": 0,
+  "drop_no_sales_data": false,
+  "need_portrait": false,
+  "score_weights": {
+    "assoc": 50,
+    "channel": 20,
+    "gender": 15,
+    "fans": 15
+  }
+}

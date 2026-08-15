@@ -1,0 +1,521 @@
+共拦截 141 个请求，22 个相关：
+============================================================
+[GET] https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav11691/upload/cps-pc/fonts/cps-pc/0.0.19/cps-pc.css
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-pc-main/lib-mui.1e3f059c.css
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-pc-main/lib-es.e06100b5.css
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-pc-main/kmi.359b9e45.css
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/unpkg/@es/micro-resource-speedy-loader/1.2.7/umd/loader.min.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/lib/react/17.0.2/react.production.min.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/lib/react-dom/17.0.2/react-dom.production.min.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-pc-main/polyfill.51b13753.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-pc-main/framework.b6ff0d0a.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-pc-main/lib-mui.0d110be2.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-pc-main/lib-es.ab3b7046.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-pc-main/vendor.0950232d.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-pc-main/kmi.30fcd327.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/index.20260717.105754.txt
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/lib-mui.68f3e5eb.css
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/lib-es.4b81bf2a.css
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/kmi.5731a868.css
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/lib/react/17.0.2/react.production.min.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/lib/react-dom/17.0.2/react-dom.production.min.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/polyfill.c00ae0b0.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/framework.1181e669.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/lib-mui.504711a2.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/lib-es.8aace8bb.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/vendor.03218bf0.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/kmi.08024850.js
+--------------------------------------------------
+[POST] https://id.kuaishou.com/pass/kuaishou/getCdns
+{
+ "sid": "kuaishou.shop.b",
+ "did": "web_cksunjpedkvcybv8f5wg1e9okba5enff"
+}
+--------------------------------------------------
+[GET] https://static.yximgs.com/udata/pkg/ks-track-platform-new/weblogger/3.10.28/async/gzipper.min.js
+--------------------------------------------------
+[GET] https://da-radar-plus-api.ksapisrv.com/dp/platform/da/radar/api/uid/U2FsdGVkX18oxs4/w57rSZOb0mSZWOe/pJ5EhPgSVxA?uid=140000116873178
+--------------------------------------------------
+[POST] https://log-sdk.ksapisrv.com/rest/wd/common/log/collect/radar?v=3.10.28&kpn=ESHOP_WEB
+{
+ "common": {
+  "identity_package": {
+   "device_id": "web_cksunjpedkvcybv8f5wg1e9okba5enff",
+   "global_id": "",
+   "user_id": "140000116873178"
+  },
+  "app_package": {
+   "language": "zh-CN",
+   "platform": 10,
+   "container": "WEB",
+   "product_name": "ESHOP_WEB"
+  },
+  "service_name": "radarSDK",
+  "device_package": {
+   "os_version": "NT 10.0",
+   "model": "Windows",
+   "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+  },
+  "need_encrypt": false,
+  "network_package": {
+   "type": 3
+  },
+  "h5_extra_attr": "{\"sdk_name\":\"webLogger\",\"sdk_version\":\"3.10.28\",\"sdk_bundle\":\"log.browser.js\",\"web_version\":\"20260805155339\",\"realm\":\"cps\",\"subRealm\":\"pc\",\"projectName\":\"kwaishop-cps-pc-main\",\"release_tag\":\"\",\"product_version\":\"20260805155339\",\"sub_app\":\"kwaishop-cps-pc-main\",\"app_version_name\":\"\",\"host_product\":\"\",\"resolution\":\"1440x900\",\"screen_width\":1440,\"screen_height\":900,\"device_pixel_ratio\":1,\"domain\":\"https://cps.kwaixiaodian.com\",\"fromIframe\":false}",
+  "global_attr": "{}"
+ },
+ "logs": [
+  {
+   "client_timestamp": 1786693404006,
+   "client_increment_id": 35474,
+   "session_id": "kshop.api",
+   "time_zone": "GMT+08:00",
+   "stat_package": {
+    "custom_stat_event": {
+     "key": "radar_log",
+     "value": "{\"project_id\":\"e371e041db\",\"radar_session_id\":\"27610d9f-17d9-4919-95de-6096f1a29439\",\"h5_extra_attr\":\"{\\\"sdk_name\\\":\\\"webLogger\\\",\\\"sdk_version\\\":\\\"3.10.28\\\",\\\"sdk_bundle\\\":\\\"log.browser.js\\\",\\\"web_version\\\":\\\"20260805155339\\\",\\\"realm\\\":\\\"cps\\\",\\\"subRealm\\\":\\\"pc\\\",\\\"projectName\\\":\\\"kwaishop-cps-pc-main\\\",\\\"release_tag\\\":\\\"\\\",\\\"product_version\\\":\\\"20260805155339\\\",\\\"sub_app\\\":\\\"kwaishop-cps-pc-main\\\",\\\"host_product\\\":\\\"\\\",\\\"resolution\\\":\\\"1440x900\\\",\\\"screen_width\\\":1440,\\\"screen_height\\\":900,\\\"device_pixel_ratio\\\":1,\\\"domain\\\":\\\"https://cps.kwaixiaodian.com\\\",\\\"fromIframe\\\":false,\\\"url\\\":\\\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\\\",\\\"hash\\\":\\\"\\\",\\\"online\\\":true,\\\"downlink\\\":1.65,\\\"rtt\\\":200}\",\"data\":[{\"key\":\"load\",\"dimension\":{\"release_tag\":\"\",\"product_version\":\"20260805155339\",\"sub_app\":\"kwaishop-cps-pc-main\",\"collect_version\":\"1.2.17-beta.12\",\"collect_name\":\"RadarNavigationCollect\",\"event_name\":\"radar_init\",\"custom_metric\":\"{}\",\"main_api_list\":[],\"radar_main_api_list\":[],\"radar_main_js_list\":[],\"is_official\":1,\"sample_rate\":1,\"happen_stage\":\"during_fmp\",\"load_device_increase_id\":6482,\"load_session_increase_id\":0},\"value\":{\"redirect\":\"0\",\"dns\":\"0\",\"dns_start\":\"2\",\"tcp\":\"0\",\"tcp_start\":\"2\",\"ttfb\":\"63\",\"request_start\":\"214\",\"trans\":\"18\",\"dom_parse\":\"-1786693403759\",\"dom_parse_start\":\"290\",\"blank\":\"290\",\"fb\":\"277\",\"dom_ready\":\"-1786693403469\",\"total\":\"-1786693403469\",\"resource\":\"0\",\"tti\":\"-1786693403469\",\"dom_num\":\"31\",\"navigation_start_time\":\"1786693403469\",\"fetch_start_time\":\"1786693403471\",\"dns_start_time\":\"1786693403471\",\"dns_end_time\":\"1786693403471\",\"connect_start_time\":\"1786693403471\",\"ssl_start_time\":\"0\",\"request_start_time\":\"1786693403683\",\"response_start_time\":\"1786693403746\",\"response_end_time\":\"1786693403764\",\"dom_interactive_time\":\"0\",\"dom_loading_time\":\"1786693403759\",\"dom_ready_time\":\"0\",\"load_event_time\":\"0\",\"connect_end_time\":\"1786693403471\",\"load_event_end\":\"0\",\"dom_complete\":\"0\",\"dom_content_loaded_event_start\":\"0\",\"redirect_start\":\"0\",\"redirect_end\":\"0\",\"radar_init_time\":\"1786693403996\"},\"h5_extra_attr\":\"{\\\"sdk_name\\\":\\\"webLogger\\\",\\\"sdk_version\\\":\\\"3.10.28\\\",\\\"sdk_bundle\\\":\\\"log.browser.js\\\",\\\"web_version\\\":\\\"20260805155339\\\",\\\"realm\\\":\\\"cps\\\",\\\"subRealm\\\":\\\"pc\\\",\\\"projectName\\\":\\\"kwaishop-cps-pc-main\\\",\\\"release_tag\\\":\\\"\\\",\\\"product_version\\\":\\\"20260805155339\\\",\\\"sub_app\\\":\\\"kwaishop-cps-pc-main\\\",\\\"app_version_name\\\":\\\"\\\",\\\"host_product\\\":\\\"\\\",\\\"resolution\\\":\\\"1440x900\\\",\\\"screen_width\\\":1440,\\\"screen_height\\\":900,\\\"device_pixel_ratio\\\":1,\\\"domain\\\":\\\"https://cps.kwaixiaodian.com\\\",\\\"fromIframe\\\":false,\\\"url\\\":\\\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\\\",\\\"hash\\\":\\\"\\\",\\\"online\\\":true,\\\"downlink\\\":1.65,\\\"rtt\\\":200}\",\"url_package\":{\"page\":\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\"},\"project_id\":\"e371e041db\",\"event_trigger_source\":\"H5\",\"event_client_timestamp\":1786693403997,\"radar_session_id\":\"27610d9f-17d9-4919-95de-6096f1a29439\"}]}"
+    }
+   }
+  }
+ ]
+}
+--------------------------------------------------
+[POST] https://log-sdk.ksapisrv.com/rest/wd/common/log/collect/misc2?v=3.10.28&kpn=ESHOP_WEB
+{
+ "common": {
+  "identity_package": {
+   "device_id": "web_cksunjpedkvcybv8f5wg1e9okba5enff",
+   "global_id": "",
+   "user_id": "140000116873178"
+  },
+  "app_package": {
+   "language": "zh-CN",
+   "platform": 10,
+   "container": "WEB",
+   "product_name": "ESHOP_WEB"
+  },
+  "device_package": {
+   "os_version": "NT 10.0",
+   "model": "Windows",
+   "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+  },
+  "need_encrypt": false,
+  "network_package": {
+   "type": 3
+  },
+  "h5_extra_attr": "{\"sdk_name\":\"webLogger\",\"sdk_version\":\"3.10.28\",\"sdk_bundle\":\"log.browser.js\",\"web_version\":\"20260805155339\",\"realm\":\"cps\",\"subRealm\":\"pc\",\"projectName\":\"kwaishop-cps-pc-main\",\"release_tag\":\"\",\"product_version\":\"20260805155339\",\"sub_app\":\"kwaishop-cps-pc-main\",\"app_version_name\":\"\",\"host_product\":\"\",\"resolution\":\"1440x900\",\"screen_width\":1440,\"screen_height\":900,\"device_pixel_ratio\":1,\"domain\":\"https://cps.kwaixiaodian.com\",\"fromIframe\":false,\"esRequestVersion\":\"2.3.4\"}",
+  "global_attr": "{}"
+ },
+ "logs": [
+  {
+   "client_timestamp": 1786693404003,
+   "client_increment_id": 7116,
+   "session_id": "kshop.api",
+   "time_zone": "GMT+08:00",
+   "event_package": {
+    "show_event": {
+     "action": 1,
+     "sub_action": 1,
+     "type": 10,
+     "first_load": true,
+     "time_cost": 0,
+     "stay_length": 0,
+     "status": 1,
+     "action_type": 1,
+     "url_package": {
+      "page": "https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro",
+      "identity": "a3a7d500-2cbe-4ce7-8079-cb444d89c2ab",
+      "page_type": 2,
+      "params": "{\"origin_url\":\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\",\"origin_pathname\":\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\"}"
+     }
+    }
+   }
+  }
+ ]
+}
+--------------------------------------------------
+[POST] https://s.kwaixiaodian.com/rest/wd/kconf/mget
+{
+ "keys": [
+  "cpsPcMainGuide"
+ ],
+ "dir": "platecoDev.frontend"
+}
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distribute/match/user/basic/login/info?type=1
+--------------------------------------------------
+[GET] blob:https://cps.kwaixiaodian.com/781b5f86-7b6d-4e54-bf31-dd13ba7a7b1e
+--------------------------------------------------
+[GET] blob:https://cps.kwaixiaodian.com/781b5f86-7b6d-4e54-bf31-dd13ba7a7b1e
+--------------------------------------------------
+[GET] https://static.yximgs.com/udata/pkg/fe/ks-sso-logger-bundle/ks-sso-logger@0.2.0.umd.js
+--------------------------------------------------
+[GET] https://verification.kuaishouzt.cn/rest/zt/basic/tracing/report
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-pc-main/chunk-header.1f5c9150.async.js
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distribute/platform/public/seller/menu/query?appKey=HrE500sg_1k
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/distribute/pc/public/pay/account/application/check
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/distribute/pc/seller/settle/status
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distribute/platform/seller/agreement/checkSign?roleType=2&agreementType=1
+--------------------------------------------------
+[GET] blob:https://cps.kwaixiaodian.com/781b5f86-7b6d-4e54-bf31-dd13ba7a7b1e
+--------------------------------------------------
+[GET] blob:https://cps.kwaixiaodian.com/781b5f86-7b6d-4e54-bf31-dd13ba7a7b1e
+--------------------------------------------------
+[GET] blob:https://cps.kwaixiaodian.com/781b5f86-7b6d-4e54-bf31-dd13ba7a7b1e
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/lib-moment.5a4fd8e2.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/315.fbe32ff6.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/411.80aab98e.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/569.3d8ca751.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/223.2c835993.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/418.54d8a93a.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/820.397fd4f4.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/317.1cbce18a.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/853.b540de91.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/600.d367caec.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/109.46c4b8d6.async.css
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/109.909e59e9.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/796.d3c3947c.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/720.426d8d67.async.js
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/626.f444a5e5.async.css
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-cps-daren-match-pc/626.f59a3e5f.async.js
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/pc/merchant/message/center/b/common/touch/agreement
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/pc/merchant/workbench/frame/b/global/agreement/get?appKey=HrE500sg_1k
+--------------------------------------------------
+[POST] https://cps.kwaixiaodian.com/gateway/distribute/im/contact/check
+{
+ "userId": 140000116873178,
+ "role": 2
+}
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/distribute/pc/public/login/seller/authority
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distribute/platform/seller/agreement/checkSign?roleType=2&agreementType=1
+--------------------------------------------------
+[GET] https://w1.beckwai.com/kos/nlav12333/chrome-plugin-upload/2024-10-15/1728994354995.3adc7bfb89bb30c5.json
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distribute/promoter/square/advice/query?scene=darenSquare
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distribute/platform/seller/promoter/content/tag
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/distribute/pc/public/channel/list
+--------------------------------------------------
+[POST] https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 10,
+ "offset": 0,
+ "type": 0
+}
+--------------------------------------------------
+[POST] https://cps.kwaixiaodian.com/gateway/distribute/pc/guide/general/query
+{
+ "pageCode": "daren_square",
+ "guideKey": "seller_invite_guide"
+}
+--------------------------------------------------
+[POST] https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 10,
+ "offset": 0,
+ "type": 0
+}
+--------------------------------------------------
+[POST] https://cps.kwaixiaodian.com/gateway/pc/merchant/message/b/questionnaire/query
+{
+ "pageCode": "bfWY-drSYfY"
+}
+--------------------------------------------------
+[GET] https://w2.eckwai.com/udata/pkg/ks-merchant/kwaishop-ssr/banner1678086567315.png
+--------------------------------------------------
+[GET] https://w2.eckwai.com/udata/pkg/ks-merchant/kwaishop-ssr/banner1678086676652.png
+--------------------------------------------------
+[GET] https://p5-ec.eckwai.com/udata/pkg/ks-merchant/kwaishop-ssr/banner1782972003493.png?x-kcdn-pid=21
+--------------------------------------------------
+[GET] https://w2.eckwai.com/udata/pkg/ks-merchant/kwaishop-ssr/banner1678087821525.png
+--------------------------------------------------
+[GET] https://w2.eckwai.com/udata/pkg/ks-merchant/kwaishop-ssr/banner1678087231759.png
+--------------------------------------------------
+[GET] https://p2-ec.eckwai.com/udata/pkg/ks-merchant/kwaishop-ssr/banner1678087495756.png?kpid=21
+--------------------------------------------------
+[GET] https://p2.eckwai.com/udata/pkg/ks-merchant/kwaishop-ssr/banner1678087904777.png
+--------------------------------------------------
+[GET] https://w2.eckwai.com/udata/pkg/ks-merchant/kwaishop-ssr/banner1678087953972.png
+--------------------------------------------------
+[GET] https://w2.eckwai.com/udata/pkg/ks-merchant/kwaishop-ssr/banner1678088201349.png
+--------------------------------------------------
+[GET] https://w2.eckwai.com/udata/pkg/ks-merchant/kwaishop-ssr/banner1678087048391.png
+--------------------------------------------------
+[POST] https://log-sdk.ksapisrv.com/rest/wd/common/log/collect/misc2?v=3.10.28&kpn=ESHOP_WEB
+{
+ "common": {
+  "identity_package": {
+   "device_id": "web_cksunjpedkvcybv8f5wg1e9okba5enff",
+   "global_id": "",
+   "user_id": "140000116873178"
+  },
+  "app_package": {
+   "language": "zh-CN",
+   "platform": 10,
+   "container": "WEB",
+   "product_name": "ESHOP_WEB"
+  },
+  "device_package": {
+   "os_version": "NT 10.0",
+   "model": "Windows",
+   "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+  },
+  "need_encrypt": false,
+  "network_package": {
+   "type": 3
+  },
+  "h5_extra_attr": "{\"sdk_name\":\"webLogger\",\"sdk_version\":\"3.10.28\",\"sdk_bundle\":\"log.browser.js\",\"web_version\":\"20260805155339\",\"realm\":\"cps\",\"subRealm\":\"pc\",\"projectName\":\"kwaishop-cps-pc-main\",\"release_tag\":\"\",\"product_version\":\"20260805155339\",\"sub_app\":\"kwaishop-cps-pc-main\",\"app_version_name\":\"\",\"host_product\":\"\",\"resolution\":\"1440x900\",\"screen_width\":1440,\"screen_height\":900,\"device_pixel_ratio\":1,\"domain\":\"https://cps.kwaixiaodian.com\",\"fromIframe\":false,\"esRequestVersion\":\"2.3.4\"}",
+  "global_attr": "{}"
+ },
+ "logs": [
+  {
+   "client_timestamp": 1786693404901,
+   "client_increment_id": 35499,
+   "session_id": "kshop.api",
+   "time_zone": "GMT+08:00",
+   "stat_package": {
+    "custom_stat_event": {
+     "key": "ESHOP_SERVER_API_END",
+     "value": "{\"url_package\":{\"page\":\"MERCHANT_HWLM_SELLER_ANCHOR_SQUARE_V5_PAGE\",\"identity\":\"111d4bcd-3d80-461b-b372-325a829467ec\",\"page_type\":2,\"params\":\"{\\\"seller_id\\\":140000116873178,\\\"sub_seller_id\\\":true,\\\"origin_url\\\":\\\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\\\",\\\"origin_pathname\\\":\\\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\\\"}\"},\"url\":\"/gateway/distribute/platform/public/seller/menu/query\",\"api\":\"/gateway/distribute/platform/public/seller/menu/query\",\"baseURL\":\"https://cps.kwaixiaodian.com\",\"urlWithoutQuery\":\"/gateway/distribute/platform/public/seller/menu/query\",\"cost\":481,\"status\":200,\"error_msg\":\"SUCCESS\",\"result\":1}"
+    }
+   }
+  },
+  {
+   "client_timestamp": 1786693404901,
+   "client_increment_id": 35500,
+   "session_id": "kshop.api",
+   "time_zone": "GMT+08:00",
+   "stat_package": {
+    "custom_stat_event": {
+     "key": "ESHOP_SERVER_API_END",
+     "value": "{\"url_package\":{\"page\":\"MERCHANT_HWLM_SELLER_ANCHOR_SQUARE_V5_PAGE\",\"identity\":\"111d4bcd-3d80-461b-b372-325a829467ec\",\"page_type\":2,\"params\":\"{\\\"seller_id\\\":140000116873178,\\\"sub_seller_id\\\":true,\\\"origin_url\\\":\\\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\\\",\\\"origin_pathname\\\":\\\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\\\"}\"},\"url\":\"/gateway/distribute/platform/seller/agreement/checkSign\",\"api\":\"/gateway/distribute/platform/seller/agreement/checkSign\",\"baseURL\":\"https://cps.kwaixiaodian.com\",\"urlWithoutQuery\":\"/gateway/distribute/platform/seller/agreement/checkSign\",\"cost\":208,\"status\":200,\"error_msg\":\"SUCCESS\",\"result\":1}"
+    }
+   }
+  },
+  {
+   "client_timestamp": 1786693404981,
+   "client_increment_id": 7118,
+   "session_id": "kshop.api",
+   "time_zone": "GMT+08:00",
+   "event_package": {
+    "show_event": {
+     "action": 1,
+     "sub_action": 1,
+     "type": 11,
+     "first_load": false,
+     "time_cost": 0,
+     "stay_length": 0,
+     "status": 1,
+     "action_type": 1,
+     "url_package": {
+      "page": "MERCHANT_HWLM_SELLER_ANCHOR_SQUARE_V5_PAGE",
+      "identity": "111d4bcd-3d80-461b-b372-325a829467ec",
+      "page_type": 2,
+      "params": "{\"seller_id\":140000116873178,\"sub_seller_id\":true,\"origin_url\":\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\",\"origin_pathname\":\"https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro\"}"
+     }
+    }
+   }
+  }
+ ]
+}
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distribute/promoter/square/advice/query?scene=darenSquare
+--------------------------------------------------
+[POST] https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 20,
+ "offset": 0,
+ "type": 0
+}
+--------------------------------------------------
+[POST] https://cps.kwaixiaodian.com/gateway/distribute/pc/guide/general/query
+{
+ "pageCode": "daren_square",
+ "guideKey": "seller_invite_guide"
+}
+--------------------------------------------------
+[POST] https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 20,
+ "offset": 0,
+ "type": 0
+}
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/cps-assets/q7hjx3t91i.d02d373c4ea023f4.png
+--------------------------------------------------
+[GET] https://p5.a.yximgs.com/uhead/AB/2026/06/29/09/BMjAyNjA2MjkwOTQ2MTVfMjM3NTc3MDI3Ml8yX2hkNzgwXzM2Mg==_s.jpg
+--------------------------------------------------
+[GET] https://w2.eckwai.com/kos/nlav12333/seller-assets/nav-arrow.d490986a4a9ba6ff.png
+--------------------------------------------------
+[POST] https://cps.kwaixiaodian.com/gateway/distribute/im/contact/check
+{
+ "role": 2
+}
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distribute/platform/public/message/list?roleType=2&messageType=0&readStatus=0&offset=0&limit=10
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/distribute/pc/public/login/seller/authority
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2024/02/13/21/BMjAyNDAyMTMyMTIwMTRfMjQxOTk1MDk3MV8xX2hkNzNfODk3_s.jpg
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/cps-assets/Frame427318667.f639d4f98948f597.png
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/cps-assets/s4p939f1vj.bdc2ffd93b4ecad7.png
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/kos/nlav12333/cps-assets/SellMoney.6c86c8882436ce35.png
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/cps-assets/Frame2994.bec0f0b7d6539e57.png
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2024/12/04/20/BMjAyNDEyMDQyMDExNTRfNDkwMzM1NzFfMl9oZDU0MF82ODM=_s.jpg
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/cps-assets/Frame427318670.f5d1d82f780e22ca.png
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/kos/nlav12333/cps-assets/SameSeller.62fa9eb674b89621.png
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2026/03/30/14/BMjAyNjAzMzAxNDEyMjZfMjAxMjg1MzU4N18xX2hkNzA5XzI3Mw==_s.jpg
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/cps-assets/Frame427318669.f9672c99c4460730.png
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/kos/nlav12333/cps-assets/SameSellerCategory.d3d1e0ff2e1c8d52.png
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2024/01/23/13/BMjAyNDAxMjMxMzQxMjVfODAzN18yX2hkMTU3XzM4Ng==_s.jpg
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2023/08/27/20/BMjAyMzA4MjcyMDUzMDZfMTk2NTMyNTg3Nl8yX2hkOTExXzQ0NQ==_s.jpg
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/cps-assets/Frame427318672.84cdb80f21060e24.png
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/kos/nlav12333/cps-assets/Higher.6aa25f8bfdafd00a.png
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2026/03/18/17/BMjAyNjAzMTgxNzMyMzlfNTM3MjUxNzQ1XzJfaGQ2NjFfMTgx_s.jpg
+--------------------------------------------------
+[GET] https://p5-ec.ecukwai.com/kos/nlav12333/cps-assets/Higher.6aa25f8bfdafd00a.png
+--------------------------------------------------
+[GET] https://p4-ec.ecukwai.com/uhead/AB/2025/10/09/18/BMjAyNTEwMDkxODAxNDJfNjI0MDYwODkzXzJfaGQxMTVfNTAx_s.jpg
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2024/08/10/14/BMjAyNDA4MTAxNDEwMTZfMTIyNjk0NjkyMl8yX2hkNjNfNzEz_s.jpg
+--------------------------------------------------
+[GET] https://p4-ec.ecukwai.com/uhead/AB/2024/08/07/12/BMjAyNDA4MDcxMjM3MTFfMjk0NDU4MDM0XzFfaGQ4NDVfMTg5_s.jpg
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2024/04/30/13/BMjAyNDA0MzAxMzQ3MDBfMzUxMjY4MDc4XzJfaGQ0ODZfNzM3_s.jpg
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2026/07/15/17/BMjAyNjA3MTUxNzM0MzJfMTMyMDU5NTI1M18xX2hkNDQwXzIxOQ==_s.jpg
+--------------------------------------------------
+[GET] https://p5-ec.ecukwai.com/kos/nlav12333/cps-assets/SameSeller.62fa9eb674b89621.png
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2026/07/21/20/BMjAyNjA3MjEyMDMwMzdfNTQ2MDQ4MDk2NV8yX2hkOTI0XzMxOA==_s.jpg
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2022/04/12/11/BMjAyMjA0MTIxMTU1NTZfMTE3NTM1OTkyNV8yX2hkMzU4Xzc2Nw==_s.jpg
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2022/02/20/00/BMjAyMjAyMjAwMDEyMzRfOTE4MTkxMjcxXzJfaGQyMjRfNTAx_s.jpg
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2024/04/02/20/BMjAyNDA0MDIyMDExMjZfNzQzMjE1MDc2XzFfaGQ5M18xMw==_s.jpg
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2019/08/08/22/BMjAxOTA4MDgyMjAzMjlfNjgzNzM5MjY4XzJfaGQ2OTZfNDY3_b.jpg
+--------------------------------------------------
+[GET] https://p4-ec.eckwai.com/kos/nlav12333/cps-assets/Frame427318668.edd0fd0dbf518a58.png
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2019/09/25/01/BMjAxOTA5MjUwMTA5MjZfMTA4NjY1N18xX2hkNDI5XzYwNw==_s.jpg
+--------------------------------------------------
+[GET] https://p4-ec.ecukwai.com/kos/nlav12333/cps-assets/SameSellerCategory.d3d1e0ff2e1c8d52.png
+--------------------------------------------------
+[GET] https://p4-ec.ecukwai.com/uhead/AB/2023/07/24/08/BMjAyMzA3MjQwODExMTBfMTExNTg3NDQxM18yX2hkMzI2XzkxNw==_s.jpg
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2022/03/09/12/BMjAyMjAzMDkxMjEyNDhfMjE3MTcwMDUxNF8xX2hkNDg2XzM2OA==_s.jpg
+--------------------------------------------------
+[GET] https://p1-ec.ecukwai.com/uhead/AB/2025/08/21/17/BMjAyNTA4MjExNzQwMzBfMzY4NDgyMTcwXzFfaGQ1NzBfNTk3_s.jpg
+--------------------------------------------------
+[GET] https://ali.a.yximgs.com/kos/nlav12119/pKJvyIZC_2025-03-12-21-35-42.png
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/pc/merchant/message/center/b/common/garyscale?scenesType=[1]
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/pc/merchant/message/center/b/message/unread/info?appKey=HrE500sg_1k
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distribute/pc/seller/message/bubble/check
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distributor/seller/api/judge/need/popup/window/agreement?reminderType=3&reminderBizType=10001
+--------------------------------------------------
+[GET] https://id.kwaixiaodian.com/pass/kuaishou/login/passToken?callback=https%3A%2F%2Fcps.kwaixiaodian.com%2Frest%2Finfra%2Fsts%3FfollowUrl%3Dhttps%253A%252F%252Fpassport.kuaishou.com%252Fpc%252Faccount%25
+--------------------------------------------------
+[GET] https://id.kwaixiaodian.com/pass/kshop/web/login/passToken?callback=https%3A%2F%2Fcps.kwaixiaodian.com%2Frest%2Finfra%2Fsts%3FfollowUrl%3Dhttps%253A%252F%252Fpassport.kuaishou.com%252Fpc%252Faccount%2
+--------------------------------------------------
+[GET] https://passport.kuaishou.com/pc/account/passToken/result?successful=false&id=SSO_1786693407664&for=pullTokenFail&sid=kuaishou.shop.b&callback=https%3A%2F%2Fcps.kwaixiaodian.com%2Frest%2Finfra%2Fsts%3
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/rest/infra/sts?followUrl=https%3A%2F%2Fpassport.kuaishou.com%2Fpc%2Faccount%2FpassToken%2Fresult%3Fsuccessful%3Dtrue%26id%3DG_SSO_1786693407666%26for%3DpassTokenSuccess&fa
+--------------------------------------------------
+[GET] https://passport.kuaishou.com/pc/account/passToken/result?successful=true&id=G_SSO_1786693407666&for=passTokenSuccess
+--------------------------------------------------
+[GET] https://cps.kwaixiaodian.com/gateway/distribute/platform/public/message/list?roleType=1&messageType=0&readStatus=0&offset=0&limit=10
+--------------------------------------------------
+[POST] https://cps.kwaixiaodian.com/distribute/pc/seller/promoter/list
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 20,
+ "offset": 0,
+ "fansAgeFeature": [
+  3
+ ],
+ "hotSaleChannelIdList": [],
+ "hotSaleSubChannelId": [],
+ "type": 0
+}
+--------------------------------------------------

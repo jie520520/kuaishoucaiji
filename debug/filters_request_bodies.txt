@@ -1,0 +1,68 @@
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 10,
+ "offset": 0,
+ "type": 0
+}
+--------------------------------------------------
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 10,
+ "offset": 0,
+ "type": 0
+}
+--------------------------------------------------
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 20,
+ "offset": 0,
+ "type": 0
+}
+--------------------------------------------------
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 20,
+ "offset": 0,
+ "type": 0
+}
+--------------------------------------------------
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 20,
+ "offset": 0,
+ "hotSaleChannelIdList": [],
+ "hotSaleSubChannelId": [],
+ "hasContact": 1,
+ "type": 0
+}
+--------------------------------------------------
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 20,
+ "offset": 0,
+ "hotSaleChannelIdList": [],
+ "hotSaleSubChannelId": [],
+ "hasContact": 1,
+ "needFee": 0,
+ "type": 0
+}
+--------------------------------------------------
+{
+ "orderField": 0,
+ "orderType": 1,
+ "limit": 20,
+ "offset": 0,
+ "hotSaleChannelIdList": [],
+ "hotSaleSubChannelId": [],
+ "hasContact": 1,
+ "needFee": 0,
+ "onInvestmentPromoter": 1,
+ "type": 0
+}
+--------------------------------------------------

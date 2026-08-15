@@ -1,0 +1,9 @@
+20:23:25 GOTO https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro
+20:23:32 URL=https://cps.kwaixiaodian.com/zone/daren-match/daren-square-pro
+20:23:32 TITLE=分销商家
+20:23:32 FETCH promoter/list (sample)
+20:23:32 LIST result=1 error=SUCCESS
+20:23:32 LIST got 10 items
+20:23:32 FETCH promoter/info pid=862635530
+20:23:33 INFO result=1 error=SUCCESS
+20:23:33 SAVED c:\Users\Administrator\Desktop\颜阿娇\快手达人采集工具\debug\capture_sales.json
