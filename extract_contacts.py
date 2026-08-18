@@ -35,15 +35,18 @@ import re
 import argparse
 from datetime import datetime
 from pathlib import Path
+import os
+import shutil
 
 if sys.platform == "win32":
     try:
-        if hasattr(sys.stdout, 'buffer') and not isinstance(sys.stdout, io.TextIOWrapper):
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-        if hasattr(sys.stderr, 'buffer') and not isinstance(sys.stderr, io.TextIOWrapper):
-            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+        # 关键：重定向到日志文件时 stdout 已是 TextIOWrapper，必须重配编码为 utf-8，
+        # 否则 emoji（🛡⚠️💾）会触发 GBK 的 UnicodeEncodeError，导致后台线程在
+        # 打印日志时直接崩溃（表现为 GUI 卡在"启动浏览器中..."）。
         if hasattr(sys.stdout, 'reconfigure'):
-            sys.stdout.reconfigure(line_buffering=True)
+            sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+        if hasattr(sys.stderr, 'reconfigure'):
+            sys.stderr.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
     except Exception:
         pass  # 作为模块导入或管道模式时忽略
 
@@ -56,7 +59,16 @@ def _ts() -> str:
 
 def log(msg: str, end: str = "\n"):
     text = f"[{_ts()}] {msg}"
-    print(text, end=end, flush=True)
+    try:
+        print(text, end=end, flush=True)
+    except UnicodeEncodeError:
+        # 极端情况下（重定向流无法重配编码）兜底：把无法编码的字符（如 emoji）替换掉
+        enc = getattr(sys.stdout, "encoding", None) or "utf-8"
+        safe = text.encode(enc, "replace").decode(enc, "replace")
+        try:
+            print(safe, end=end, flush=True)
+        except Exception:
+            pass
 
 
 from playwright.sync_api import sync_playwright
@@ -107,28 +119,265 @@ def _contact_values_from_row(row, phone_col, wechat_col):
     wechat = _clean_contact_value(row[wechat_col]) if wechat_col is not None and len(row) > wechat_col else ""
     return phone, wechat
 
-def _clear_placeholder_contacts(input_excel: str):
+def _atomic_save(wb, path: str):
+    """原子保存：先写临时文件，写完整后再替换目标，避免写入中途被打断损坏文件。
+
+    原文件从不被传入此函数，因此任何异常最多只留下临时文件，
+    原始数据文件始终完好。
+    """
+    path = str(path)
+    tmp = f"{path}.tmp_{os.getpid()}"
+    try:
+        wb.save(tmp)
+    except Exception:
+        try:
+            if os.path.exists(tmp):
+                os.remove(tmp)
+        except OSError:
+            pass
+        raise
+    os.replace(tmp, path)  # Windows 上也可覆盖已存在文件，且是原子操作
+
+
+def _resolve_output_file(input_excel: str) -> Path:
+    """结果输出文件：与原文件同目录，命名为 原名_联系方式.xlsx。"""
+    p = Path(input_excel)
+    return p.parent / f"{p.stem}_联系方式{p.suffix}"
+
+
+def _backup_input_file(input_excel: str):
+    """提取开始前备份原始数据文件（仅当结果文件尚不存在，即首次跑时备份一次）。"""
+    src = Path(input_excel)
+    if not src.exists():
+        return
+    out = _resolve_output_file(input_excel)
+    if out.exists():
+        return  # 结果文件已存在说明之前跑过，原文件已备份过，不再重复
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup = src.parent / f"{src.stem}_备份_{stamp}{src.suffix}"
+    try:
+        shutil.copy2(src, backup)
+        log(f"🛡 已备份原始数据文件: {backup.name}")
+    except Exception as e:
+        log(f"⚠️ 备份原始文件失败（不影响提取）: {e}")
+
+
+def _init_output_file(input_excel: str) -> str:
+    """确保结果输出文件存在，返回其路径。
+
+    【核心安全约束】原文件始终保持只读，绝不 write/save 原文件；
+    所有写入都发生在独立的输出文件上。即便提取过程中报错、中断、或
+    保存被打断，原始采集数据文件都不会被损坏（损坏最多只影响临时文件）。
+
+    首次运行：以原文件为只读基底复制一份到输出文件，清理旧占位值，
+    补齐"手机号/微信号"列头。之后运行（断点续传）：直接复用已有输出文件。
+    """
+    out = _resolve_output_file(input_excel)
+    _backup_input_file(input_excel)
+
+    if out.exists():
+        return str(out)
+
+    # 首次：从原文件复制基底到输出文件（原文件只读，不写回）
     wb = load_workbook(input_excel)
     ws = wb.active
-    contact_cols = []
+
+    pid_col = phone_col = wechat_col = None
     for col_idx, cell in enumerate(ws[1], 1):
-        header = str(cell.value).strip() if cell.value else ""
-        if header in ("手机号", "微信号"):
-            contact_cols.append(col_idx)
+        h = str(cell.value).strip() if cell.value else ""
+        hl = h.lower()
+        if "快手id" in hl or "promoter" in hl:
+            pid_col = col_idx
+        if h == "手机号":
+            phone_col = col_idx
+        if h == "微信号":
+            wechat_col = col_idx
 
-    changed = 0
-    for row_idx in range(2, ws.max_row + 1):
-        for col_idx in contact_cols:
-            cell = ws.cell(row=row_idx, column=col_idx)
-            if _is_placeholder_contact(cell.value):
-                cell.value = None
-                changed += 1
+    # 清理原文件中旧的占位值（仅作用于输出副本，不碰原文件）
+    if phone_col:
+        for r in range(2, ws.max_row + 1):
+            c = ws.cell(row=r, column=phone_col)
+            if _is_placeholder_contact(c.value):
+                c.value = None
+    if wechat_col:
+        for r in range(2, ws.max_row + 1):
+            c = ws.cell(row=r, column=wechat_col)
+            if _is_placeholder_contact(c.value):
+                c.value = None
 
-    if changed:
-        wb.save(input_excel)
-        log(f"   🧹 已清理 {changed} 个旧的‘无/暂无’占位值")
+    # 缺失的联系方式列头补上
+    next_col = ws.max_column + 1
+    need_phone = (phone_col is None)
+    need_wechat = (wechat_col is None)
+    if need_phone:
+        phone_col = next_col; next_col += 1
+    if need_wechat:
+        wechat_col = next_col; next_col += 1
+
+    header_fill = PatternFill(start_color="2F5496", end_color="2F5496", fill_type="solid")
+    header_font = Font(name="微软雅黑", size=11, bold=True, color="FFFFFF")
+    center_align = Alignment(horizontal="center", vertical="center")
+    thin_border = Border(left=Side(style="thin"), right=Side(style="thin"),
+                          top=Side(style="thin"), bottom=Side(style="thin"))
+    if need_phone:
+        c = ws.cell(row=1, column=phone_col, value="手机号")
+        c.font = header_font; c.fill = header_fill; c.alignment = center_align; c.border = thin_border
+    if need_wechat:
+        c = ws.cell(row=1, column=wechat_col, value="微信号")
+        c.font = header_font; c.fill = header_fill; c.alignment = center_align; c.border = thin_border
+
+    # 原子保存到输出文件（原文件始终未被写入）
+    _atomic_save(wb, str(out))
     wb.close()
-    return changed
+    log(f"📄 已创建结果文件（原文件未改动）: {out.name}")
+    return str(out)
+
+
+def load_work_extracted_pids(output_file: str) -> set:
+    """读取工作结果文件(原名_联系方式.xlsx)，返回【已成功提取联系方式】的达人ID集合。
+
+    判断标准：该达人在工作文件里手机号或微信号至少有一个是非占位的真实值。
+    用这个集合来跳过“已经提取过、但还没合并回原文件”的达人，
+    避免重复消耗每日名额 —— 这正是“复制到表格”之前也要能自动跳过的核心逻辑。
+
+    返回空集合的情况：文件不存在、无ID列、或读取异常（异常时按“未提取”处理，绝不阻断提取）。
+    """
+    out = Path(output_file)
+    if not out.exists():
+        return set()
+    try:
+        wb = load_workbook(out, read_only=True)
+        ws = wb.active
+        header = list(ws.iter_rows(min_row=1, max_row=1, values_only=True))[0]
+        header = [str(h).strip() if h else "" for h in header]
+        pid_col = phone_col = wechat_col = None
+        for i, h in enumerate(header):
+            hl = h.lower()
+            if "快手id" in hl or "promoter" in hl:
+                pid_col = i
+            if h == "手机号":
+                phone_col = i
+            if h == "微信号":
+                wechat_col = i
+        extracted = set()
+        if pid_col is None:
+            wb.close()
+            return extracted
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            pid = str(row[pid_col]).strip() if row[pid_col] else ""
+            if not pid:
+                continue
+            phone, wechat = _contact_values_from_row(row, phone_col, wechat_col)
+            if phone or wechat:
+                extracted.add(pid)
+        wb.close()
+        return extracted
+    except Exception as e:
+        log(f"⚠️ 读取工作文件已提取记录失败（按未提取处理）: {e}")
+        return set()
+
+
+def finalize_to_original(input_excel: str, output_file: str):
+    """把工作结果文件(原名_联系方式.xlsx)里的联系方式【原子合并】回原文件。
+
+    这是“最终结果落回原文件”的唯一写原文件入口，且必须是原子的：
+    先 load 原文件 → 填联系方式 → 写到临时文件 → os.replace 原子替换，
+    任何异常最多留下临时文件，原文件绝不会被损坏。
+
+    设计分工：
+    - 中间过程的无数次实时保存只写工作文件，原文件完全不受影响；
+    - 只有这里（提取结束时）才一次性、原子地把结果落回原文件。
+    """
+    out = Path(output_file)
+    if not out.exists():
+        return
+
+    # 读取工作文件里的联系方式映射
+    owb = load_workbook(out)
+    ows = owb.active
+    opid = ophone = owechat = None
+    for i, c in enumerate(ows[1], 1):
+        h = str(c.value).strip() if c.value else ""
+        hl = h.lower()
+        if "快手id" in hl or "promoter" in hl:
+            opid = i
+        if h == "手机号":
+            ophone = i
+        if h == "微信号":
+            owechat = i
+    mapping = {}
+    for r in range(2, ows.max_row + 1):
+        pid = str(ows.cell(row=r, column=opid).value or "").strip() if opid else ""
+        if not pid:
+            continue
+        mapping[pid] = (
+            _clean_contact_value(ows.cell(row=r, column=ophone).value) if ophone else "",
+            _clean_contact_value(ows.cell(row=r, column=owechat).value) if owechat else "",
+        )
+    owb.close()
+
+    if not mapping:
+        return
+
+    # 原子合并回原文件
+    wb = load_workbook(input_excel)
+    ws = wb.active
+    ipid = iphone = iwechat = None
+    for i, c in enumerate(ws[1], 1):
+        h = str(c.value).strip() if c.value else ""
+        hl = h.lower()
+        if "快手id" in hl or "promoter" in hl:
+            ipid = i
+        if h == "手机号":
+            iphone = i
+        if h == "微信号":
+            iwechat = i
+
+    next_col = ws.max_column + 1
+    need_phone = (iphone is None)
+    need_wechat = (iwechat is None)
+    if need_phone:
+        iphone = next_col; next_col += 1
+    if need_wechat:
+        iwechat = next_col; next_col += 1
+
+    header_fill = PatternFill(start_color="2F5496", end_color="2F5496", fill_type="solid")
+    header_font = Font(name="微软雅黑", size=11, bold=True, color="FFFFFF")
+    center_align = Alignment(horizontal="center", vertical="center")
+    thin_border = Border(left=Side(style="thin"), right=Side(style="thin"),
+                          top=Side(style="thin"), bottom=Side(style="thin"))
+    green_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+    if need_phone:
+        c = ws.cell(row=1, column=iphone, value="手机号")
+        c.font = header_font; c.fill = header_fill; c.alignment = center_align; c.border = thin_border
+    if need_wechat:
+        c = ws.cell(row=1, column=iwechat, value="微信号")
+        c.font = header_font; c.fill = header_fill; c.alignment = center_align; c.border = thin_border
+
+    filled = 0
+    for r in range(2, ws.max_row + 1):
+        pid = str(ws.cell(row=r, column=ipid).value or "").strip() if ipid else ""
+        if not pid:
+            continue
+        phone, wechat = mapping.get(pid, ("", ""))
+        if not phone and not wechat:
+            continue
+        # 原文件已有有效值则保留，缺失的才用结果补上
+        ep = _clean_contact_value(ws.cell(row=r, column=iphone).value)
+        ew = _clean_contact_value(ws.cell(row=r, column=iwechat).value)
+        final_p = ep if ep else phone
+        final_w = ew if ew else wechat
+        if (final_p and final_p != "无") or final_w:
+            c1 = ws.cell(row=r, column=iphone)
+            c1.value = final_p; c1.border = thin_border; c1.alignment = center_align; c1.fill = green_fill
+            c2 = ws.cell(row=r, column=iwechat)
+            c2.value = final_w; c2.border = thin_border; c2.alignment = center_align; c2.fill = green_fill
+            filled += 1
+
+    _atomic_save(wb, input_excel)
+    wb.close()
+    log(f"💾 已原子合并联系方式到原文件: {Path(input_excel).name}（{filled} 人）")
+
 
 def _retry_state_path(input_excel: str) -> Path:
     input_path = Path(input_excel)
@@ -564,13 +813,19 @@ def batch_extract(input_excel: str, max_count: int = None,
     # 读取全部数据行，标记哪些已有完整联系方式
     all_rows = list(ws.iter_rows(min_row=2, values_only=True))
     wb.close()
-    _clear_placeholder_contacts(input_excel)
+    # 原文件始终保持只读；结果写入独立的“_联系方式”文件，任何异常都不损坏原始数据
+    output_file = _init_output_file(input_excel)
 
     if not all_rows:
         log("❌ Excel中没有数据行")
         return []
 
     retry_state = _load_retry_state(input_excel)
+    # 加载工作文件里【已提取】的达人ID集合：即便尚未点“复制到表格”合并回原文件，
+    # 这些达人也应直接跳过，不重复消耗每日名额（断点续提的持久依据）。
+    work_extracted_pids = load_work_extracted_pids(output_file)
+    if work_extracted_pids:
+        log(f"   📌 工作文件中已提取联系方式: {len(work_extracted_pids)} 人 (未合并回原文件也会跳过)")
     rows_to_extract = []
     already_has = 0
     retry_exhausted = 0
@@ -580,6 +835,9 @@ def batch_extract(input_excel: str, max_count: int = None,
 
         if promoter_id and _is_retry_exhausted(retry_state, promoter_id):
             retry_exhausted += 1
+        elif promoter_id and promoter_id in work_extracted_pids:
+            # 工作文件已有真实联系方式（可能还没合并回原文件），跳过不重复查
+            already_has += 1
         elif _is_contact_complete(retry_state, promoter_id, phone_val, wechat_val):
             already_has += 1
         else:
@@ -676,7 +934,7 @@ def batch_extract(input_excel: str, max_count: int = None,
         _save_progress(results, input_excel)
         if done_so_far % 5 == 0 or done_so_far == effective_total or result["phone"] or result["wechat"]:
             try:
-                _save_final_excel(results, input_excel)
+                _save_final_excel(results, output_file)
             except Exception as e:
                 log(f"   ⚠️ Excel保存失败（JSON已存）: {e}")
 
@@ -696,8 +954,8 @@ def batch_extract(input_excel: str, max_count: int = None,
                 log("⚠️ 疑似触达查询限制，触发自动暂停...")
             log(f"{'⚠️'*20}")
 
-            # 先保存已有结果到 Excel
-            _save_final_excel(results, input_excel)
+            # 先保存已有结果到结果文件（不改动原文件）
+            _save_final_excel(results, output_file)
 
             verification_marker = _detect_verification(page)
             if verification_marker:
@@ -711,6 +969,8 @@ def batch_extract(input_excel: str, max_count: int = None,
                         break
                 if not resolved:
                     log("❌ 5分钟内未完成验证，本次任务安全停止")
+                    _save_final_excel(results, output_file)
+                    finalize_to_original(input_excel, output_file)
                     break
                 log("✅ 验证已完成，继续提取")
                 consecutive_empty = 0
@@ -757,6 +1017,8 @@ def batch_extract(input_excel: str, max_count: int = None,
                             break
                     else:
                         log("❌ 登录超时，停止提取")
+                        _save_final_excel(results, output_file)
+                        finalize_to_original(input_excel, output_file)
                         break
 
             consecutive_empty = 0  # 重置计数器
@@ -777,15 +1039,18 @@ def batch_extract(input_excel: str, max_count: int = None,
     # 关闭浏览器
     _close_browser(p, ctx)
 
-    # 保存最终结果
-    output_file = _save_final_excel(results, input_excel)
+    # 中间过程：结果只写入独立工作文件（原文件始终只读，绝不损坏）
+    _save_final_excel(results, output_file)
+    # 最终：原子地把联系方式合并回原文件，原文件成为最终成品
+    finalize_to_original(input_excel, output_file)
 
     log(f"\n{'='*50}")
     log(f"🎉 提取完成！")
     log(f"   成功: {success_count}/{len(results)}")
     if pause_count > 0:
         log(f"   自动暂停恢复: {pause_count} 次")
-    log(f"   输出: {output_file}")
+    log(f"   原文件已更新: {Path(input_excel).name}（联系方式已原子落回）")
+    log(f"   工作副本: {output_file}")
 
     return results
 
@@ -807,7 +1072,7 @@ def _save_progress(results: list, input_excel: str):
 
 
 def _save_final_excel(results: list, input_excel: str):
-    """将提取的手机号和微信号回写到原始Excel。
+    """将提取的手机号和微信号写入独立的结果Excel文件（不改动原始输入文件）。
 
     【v4修复】已有的有效字段保留不覆盖；缺失的字段（哪怕只缺一个）
     用本次提取结果补上。之前版本是"任一字段有值就整行跳过"，
@@ -835,12 +1100,11 @@ def _save_final_excel(results: list, input_excel: str):
     ws = wb.active
 
     # 读取表头，找关键列
-    pid_col = None
-    phone_col = None
-    wechat_col = None
+    pid_col = phone_col = wechat_col = None
     for col_idx, cell in enumerate(ws[1], 1):
         h = str(cell.value).strip() if cell.value else ""
-        if "快手ID" in h or "promoter" in h.lower():
+        hl = h.lower()
+        if "快手id" in hl or "promoter" in hl:
             pid_col = col_idx
         if h == "手机号":
             phone_col = col_idx
@@ -852,17 +1116,14 @@ def _save_final_excel(results: list, input_excel: str):
         wb.close()
         return ""
 
-    # 如果列不存在则新增，存在则复用已有列号
+    # 列不存在则按顺序新增（避免与已有列号冲突）
+    next_col = ws.max_column + 1
     need_new_phone = (phone_col is None)
     need_new_wechat = (wechat_col is None)
-    max_col = ws.max_column
-    if need_new_phone and need_new_wechat:
-        phone_col = max_col + 1
-        wechat_col = max_col + 2
-    elif need_new_phone:
-        phone_col = max_col + 1
-    elif need_new_wechat:
-        wechat_col = max_col + 1
+    if need_new_phone:
+        phone_col = next_col; next_col += 1
+    if need_new_wechat:
+        wechat_col = next_col; next_col += 1
 
     # 样式
     header_fill = PatternFill(start_color="2F5496", end_color="2F5496", fill_type="solid")
@@ -877,7 +1138,8 @@ def _save_final_excel(results: list, input_excel: str):
     red_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
 
     # 写新表头（仅新建列需要）
-    for col, title, is_new in [(phone_col, "手机号", need_new_phone), (wechat_col, "微信号", need_new_wechat)]:
+    for col, title, is_new in [(phone_col, "手机号", need_new_phone),
+                                (wechat_col, "微信号", need_new_wechat)]:
         if is_new:
             cell = ws.cell(row=1, column=col, value=title)
             cell.font = header_font
@@ -908,7 +1170,7 @@ def _save_final_excel(results: list, input_excel: str):
         has_good_wechat = bool(existing_wechat_str)
 
         if has_good_phone and has_good_wechat:
-            # 两个字段都已经是有效数据，整行跳过，不覆盖
+            # 两个字段都已是有效数据：跳过不覆盖
             skipped += 1
             continue
 
@@ -941,11 +1203,11 @@ def _save_final_excel(results: list, input_excel: str):
     ws.column_dimensions[get_column_letter(phone_col)].width = 16
     ws.column_dimensions[get_column_letter(wechat_col)].width = 22
 
-    # 保存回原文件
-    wb.save(input_excel)
+    # 原子保存到结果文件（绝不写回原文件）
+    _atomic_save(wb, input_excel)
     wb.close()
 
-    log(f"💾 已回写到原文件: {input_path.name}")
+    log(f"💾 已写入结果文件: {input_path.name}")
     log(f"   本次新增/补全: {filled} 人")
     if skipped > 0:
         log(f"   已有完整数据跳过: {skipped} 人 (保留原数据)")
@@ -961,7 +1223,7 @@ _col_cache = {}
 
 
 def _save_one_to_excel(result: dict, input_excel: str):
-    """将单个提取结果精准写入Excel对应行。
+    """将单个提取结果精准写入独立的结果Excel文件对应行（不改动原始输入文件）。
 
     与 _save_final_excel 的区别：
     - _save_final_excel 遍历全部行再写 → O(n^2) I/O，日志混淆
@@ -987,12 +1249,13 @@ def _save_one_to_excel(result: dict, input_excel: str):
     # 列检测（优先用缓存）
     cached = _col_cache.get(key)
     if cached:
-        pid_col, phone_col, wechat_col = cached
+        (pid_col, phone_col, wechat_col) = cached
     else:
         pid_col = phone_col = wechat_col = None
         for col_idx, cell in enumerate(ws[1], 1):
             h = str(cell.value).strip() if cell.value else ""
-            if "快手ID" in h or "promoter" in h.lower():
+            hl = h.lower()
+            if "快手id" in hl or "promoter" in hl:
                 pid_col = col_idx
             if h == "手机号":
                 phone_col = col_idx
@@ -1003,23 +1266,21 @@ def _save_one_to_excel(result: dict, input_excel: str):
             wb.close()
             return ""
 
+        next_col = ws.max_column + 1
         need_new_phone = (phone_col is None)
         need_new_wechat = (wechat_col is None)
-        max_col = ws.max_column
-        if need_new_phone and need_new_wechat:
-            phone_col = max_col + 1
-            wechat_col = max_col + 2
-        elif need_new_phone:
-            phone_col = max_col + 1
-        elif need_new_wechat:
-            wechat_col = max_col + 1
+        if need_new_phone:
+            phone_col = next_col; next_col += 1
+        if need_new_wechat:
+            wechat_col = next_col; next_col += 1
 
         # 写新表头
         header_fill = PatternFill(start_color="2F5496", end_color="2F5496", fill_type="solid")
         header_font = Font(name="微软雅黑", size=11, bold=True, color="FFFFFF")
         thin_border = Border(left=Side(style="thin"), right=Side(style="thin"),
                               top=Side(style="thin"), bottom=Side(style="thin"))
-        for col, title, is_new in [(phone_col, "手机号", need_new_phone), (wechat_col, "微信号", need_new_wechat)]:
+        for col, title, is_new in [(phone_col, "手机号", need_new_phone),
+                                    (wechat_col, "微信号", need_new_wechat)]:
             if is_new:
                 cell = ws.cell(row=1, column=col, value=title)
                 cell.font = header_font
@@ -1066,7 +1327,7 @@ def _save_one_to_excel(result: dict, input_excel: str):
     has_good_wechat = bool(existing_wechat_str)
 
     if has_good_phone and has_good_wechat:
-        # 两个字段都已经是有效数据，跳过不覆盖
+        # 两个字段都已是有效数据：跳过不覆盖
         wb.close()
         return ""
 
@@ -1097,7 +1358,7 @@ def _save_one_to_excel(result: dict, input_excel: str):
     ws.column_dimensions[get_column_letter(phone_col)].width = 16
     ws.column_dimensions[get_column_letter(wechat_col)].width = 22
 
-    wb.save(input_excel)
+    _atomic_save(wb, input_excel)
     wb.close()
 
     tag = "📱" if has_real_final else "⛔"

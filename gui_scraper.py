@@ -34,12 +34,12 @@ from pathlib import Path
 
 if sys.platform == "win32":
     try:
-        if hasattr(sys.stdout, 'buffer') and not isinstance(sys.stdout, io.TextIOWrapper):
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-        if hasattr(sys.stderr, 'buffer') and not isinstance(sys.stderr, io.TextIOWrapper):
-            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+        # 必须重配编码为 utf-8，否则 emoji 日志（🛡⚠️💾）在 GBK 控制台/日志文件下
+        # 会触发 UnicodeEncodeError，导致后台线程崩溃（表现为 GUI 卡在"启动浏览器中..."）
         if hasattr(sys.stdout, 'reconfigure'):
-            sys.stdout.reconfigure(line_buffering=True)
+            sys.stdout.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
+        if hasattr(sys.stderr, 'reconfigure'):
+            sys.stderr.reconfigure(encoding='utf-8', errors='replace', line_buffering=True)
     except Exception:
         pass
 
@@ -575,7 +575,7 @@ class ScraperGUI:
         self.page_size_var = tk.StringVar(value="20")
         self.turbo_var = tk.BooleanVar(value=False)
         self.promoter_type_var = tk.StringVar(value="全部达人")
-        self.contact_var = tk.BooleanVar(value=True)
+        self.contact_filter_var = tk.StringVar(value="仅看有联系方式")
         self.status_var = tk.StringVar(value="* 就绪 - 选择标签后点击开始采集")
 
         # --- 联系方式提取状态 ---
@@ -710,8 +710,10 @@ class ScraperGUI:
         # 联系方式
         r0b = ttk.Frame(sf)
         r0b.pack(fill="x", pady=2)
-        ttk.Checkbutton(r0b, text="仅看有联系方式 (不勾选=全部达人)",
-                        variable=self.contact_var).pack(side="left")
+        ttk.Label(r0b, text="联系方式:", font=F_BODY).pack(side="left")
+        ttk.Combobox(r0b, textvariable=self.contact_filter_var, width=14,
+                     values=["仅看有联系方式", "仅看无联系方式", "全部达人"],
+                     state="readonly", font=F_BODY).pack(side="left", padx=4)
 
         # --- 筛选条件（v11.5: 平台先筛后拉；不限=全部） ---
         ttk.Separator(sf, orient="horizontal").pack(fill="x", pady=4)
@@ -944,6 +946,11 @@ class ScraperGUI:
                    command=lambda: os.startfile(str(ys.Config.OUTPUT_DIR))
                    ).pack(side="left", padx=4)
 
+        ttk.Separator(ctrl, orient="vertical").pack(side="left", fill="y", padx=6)
+        self.btn_contact_copy = ttk.Button(ctrl, text="📋  复制到表格",
+                                            command=self._on_contact_copy)
+        self.btn_contact_copy.pack(side="left", padx=4)
+
         # 进度
         pf = ttk.LabelFrame(right, text="提取进度", padding=6)
         pf.pack(fill="x", pady=(0, 4))
@@ -1003,6 +1010,7 @@ class ScraperGUI:
 
         self.btn_contact_start.config(state="disabled")
         self.btn_contact_stop.config(state="normal")
+        self.btn_contact_copy.config(state="disabled")
         self.pb_contact["value"] = 0
         self.lbl_contact_progress.config(text="启动浏览器中...")
 
@@ -1029,12 +1037,37 @@ class ScraperGUI:
         self._log("🛑 收到停止信号...", "warning")
         self.btn_contact_stop.config(state="disabled")
         self.btn_contact_skip.config(state="disabled")
+        self.btn_contact_copy.config(state="disabled")
 
     def _on_contact_skip_pause(self):
         """手动停止暂停，立即恢复提取"""
         self.contact_skip_pause = True
         self._log("⏹  收到停止暂停信号，立即恢复...", "info")
         self.btn_contact_skip.config(state="disabled")
+
+    def _on_contact_copy(self):
+        """把已提取到的联系方式原子合并回原表格。
+
+        这样下次打开同一表格提取时，已有联系方式的达人会被自动跳过，
+        不浪费每天的查看名额。可随时点击（提取进行中按钮禁用）。
+        """
+        input_file = self.contact_input_var.get()
+        if not input_file or not Path(input_file).exists():
+            self._log("请先选择采集结果Excel", "warning")
+            return
+        from extract_contacts import _resolve_output_file, finalize_to_original
+        out = _resolve_output_file(input_file)
+        if not Path(out).exists():
+            self._log("还没有可复制的联系方式，请先提取", "warning")
+            return
+        try:
+            finalize_to_original(input_file, out)
+            self._log(f"✅ 已把已提取的联系方式复制到原表格: {Path(input_file).name}", "success")
+            self._log("   下次打开此表格提取时，已有联系方式会直接跳过，不浪费名额", "normal")
+        except PermissionError:
+            self._log("❌ 复制失败：原表格正被 Excel 打开，请先关闭后再点“复制到表格”", "error")
+        except Exception as e:
+            self._log(f"❌ 复制到表格失败: {e}", "error")
 
     def _run_contact_extract(self, input_file, max_count):
         """后台线程：批量提取联系方式"""
@@ -1081,7 +1114,16 @@ class ScraperGUI:
                 self.msg_queue.put(("contact_error", "未找到快手ID列"))
                 return
 
-            # 过滤：跳过已有联系方式的达人
+            # 原文件保持只读；结果写入独立的“_联系方式”文件，任何异常都不损坏原始采集数据
+            from extract_contacts import _init_output_file, load_work_extracted_pids
+            output_file = _init_output_file(input_file)
+            # 加载工作文件里【已提取】的达人ID集合：即便还没点“复制到表格”合并回原文件，
+            # 这些达人也应直接跳过，不重复消耗每日名额（断点续提的持久依据）。
+            work_extracted_pids = load_work_extracted_pids(output_file)
+            if work_extracted_pids:
+                self.msg_queue.put(("contact_log", f"   📌 工作文件中已提取: {len(work_extracted_pids)} 人 (未合并回原文件也会跳过)"))
+
+            # 过滤：跳过已有联系方式的达人（原文件列 或 工作文件已提取记录 任一命中即跳过）
             rows_to_extract = []  # (原始索引, 行数据)
             already_has = 0
             for idx, row in enumerate(data_rows):
@@ -1094,6 +1136,9 @@ class ScraperGUI:
                     val = str(row[wechat_col]).strip()
                     if val and val not in ("None", ""):
                         has_contact = True
+                pid_val = str(row[pid_col]).strip() if pid_col is not None and row[pid_col] else ""
+                if pid_val and pid_val in work_extracted_pids:
+                    has_contact = True
                 if has_contact:
                     already_has += 1
                 else:
@@ -1109,7 +1154,7 @@ class ScraperGUI:
 
             if need_extract == 0:
                 self.msg_queue.put(("contact_log", "✅ 所有达人联系方式已齐全！"))
-                self.msg_queue.put(("contact_done", [], input_file))
+                self.msg_queue.put(("contact_done", [], output_file))
                 return
 
             self.msg_queue.put(("contact_total", effective))
@@ -1176,11 +1221,11 @@ class ScraperGUI:
                 results.append(result)
 
                 # 保存进度：JSON 每步存（快速可靠），Excel 每5步批量写（防卡锁）
-                from extract_contacts import _save_progress, _save_final_excel
+                from extract_contacts import _save_progress, _save_final_excel, finalize_to_original
                 _save_progress(results, input_file)
                 if i % 5 == 0 or i == effective - 1 or result["phone"] or result["wechat"]:
                     try:
-                        _save_final_excel(results, input_file)
+                        _save_final_excel(results, output_file)
                     except Exception as e:
                         self.msg_queue.put(("contact_log", f"⚠️ Excel保存失败（JSON已存）: {e}"))
 
@@ -1196,7 +1241,7 @@ class ScraperGUI:
                     self.msg_queue.put(("contact_log", "⚠️" * 20))
 
                     # 先保存已有结果
-                    _save_final_excel(results, input_file)
+                    _save_final_excel(results, output_file)
 
                     # 不关浏览器！保持登录会话存活，避免恢复时需要人工扫码
                     page.goto(EcConfig.DAREN_SQUARE_URL, timeout=30000, wait_until="domcontentloaded")
@@ -1292,10 +1337,17 @@ class ScraperGUI:
             if stopped_by_user:
                 self.msg_queue.put(("contact_log", ""))
                 self.msg_queue.put(("contact_log", "🛑 用户手动停止"))
-                self.msg_queue.put(("contact_log", f"   已保存 {self.contact_extracted} 人（成功 {self.contact_success} 人）到原文件"))
-                _save_final_excel(results, input_file)
+                self.msg_queue.put(("contact_log", f"   已保存 {self.contact_extracted} 人（成功 {self.contact_success} 人）到结果文件"))
+                _save_final_excel(results, output_file)
+                # 最终：原子合并联系方式回原文件（原文件即最终成品）
+                finalize_to_original(input_file, output_file)
+                output_file = input_file
+                self.msg_queue.put(("contact_done", results, output_file))
             else:
-                output_file = _save_final_excel(results, input_file)
+                _save_final_excel(results, output_file)
+                # 最终：原子合并联系方式回原文件（原文件即最终成品）
+                finalize_to_original(input_file, output_file)
+                output_file = input_file
                 self.msg_queue.put(("contact_done", results, output_file))
 
             _close_contact_browser(p, ctx)
@@ -1473,7 +1525,7 @@ class ScraperGUI:
         self._log("=" * 50, "normal")
         self._log(f">> 开始采集 {len(tags)} 个标签", "info")
         self._log(f"   达人类型: {self.promoter_type_var.get()}", "normal")
-        self._log(f"   联系方式: {'仅看有联系方式' if self.contact_var.get() else '全部达人'}", "normal")
+        self._log(f"   联系方式: {self.contact_filter_var.get()}", "normal")
         self._log(f"   筛选条件: {filter_desc}", "normal")
         self._log(f"   页间延迟: {self.page_delay_var.get()}秒 | "
                   f"标签间: {self.tag_delay_var.get()}秒 | "
@@ -1523,7 +1575,11 @@ class ScraperGUI:
             self.scraper.promoter_type = type_map.get(
                 self.promoter_type_var.get(), 0)
             # 联系方式
-            self.scraper.has_contact = self.contact_var.get()
+            contact_map = {"仅看有联系方式": "with",
+                           "仅看无联系方式": "without",
+                           "全部达人": "all"}
+            self.scraper.contact_filter = contact_map.get(
+                self.contact_filter_var.get(), "with")
             # 筛选条件
             self.scraper.filter_config = getattr(self, "filter_config", {})
 
@@ -1761,6 +1817,7 @@ class ScraperGUI:
         self.btn_contact_start.config(state="normal")
         self.btn_contact_stop.config(state="disabled")
         self.btn_contact_skip.config(state="disabled")
+        self.btn_contact_copy.config(state="normal")
 
     # ========================================================
     # 工具方法
